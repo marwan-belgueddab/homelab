@@ -1,0 +1,5 @@
+---
+- name: Reload ssh server configuration
+  ansible.builtin.systemd:
+    name: ssh.service
+    state: reloaded

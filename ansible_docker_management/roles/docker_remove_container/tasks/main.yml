@@ -1,0 +1,30 @@
+- name: Validate input for container_names
+  ansible.builtin.assert:
+    that:
+      - container_names is defined
+      - container_names | length > 0
+    fail_msg: "You must provide a list of containers in 'container_names'."
+
+- name: Find all docker-compose.yml files for the host
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    patterns: "docker-compose.yml"
+    file_type: file
+    recurse: true
+  register: all_docker_compose_files
+  delegate_to: localhost
+
+- name: Filter docker-compose files for container_names
+  ansible.builtin.set_fact:
+    target_docker_compose_files: >-
+      {{
+        all_docker_compose_files.files | selectattr(
+          'path', 'search', '^.*/(' + '|'.join(container_names) + ')/docker-compose.yml$'
+        ) | list
+      }}
+
+- name: Remove specified containers
+  ansible.builtin.include_tasks: remove_compose.yml
+  loop: "{{ target_docker_compose_files }}"
+  loop_control:
+    loop_var: compose_file

@@ -1,0 +1,29 @@
+---
+- name: Ensure SSH key is present for {{ pve_root_user }}
+  ansible.posix.authorized_key:
+    user: "{{ pve_root_user }}"
+    state: present
+    key: "{{ lookup('file', pve_root_ssh_public_key_file) }}"
+
+- name: Deactivate PasswordAuthentication
+  ansible.builtin.lineinfile:
+    path: "/etc/ssh/sshd_config"
+    line: "PasswordAuthentication yes"
+    state: absent
+
+- name: Ensure PasswordAuthentication is not activated
+  ansible.builtin.lineinfile:
+    path: "/etc/ssh/sshd_config"
+    line: "PasswordAuthentication no"
+    state: present
+
+- name: Restart SSH
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+
+- name: Ensure SSH service is enabled and running
+  ansible.builtin.service:
+    name: sshd
+    state: started
+    enabled: true

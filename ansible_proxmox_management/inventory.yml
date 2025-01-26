@@ -1,0 +1,19 @@
+pve:
+  hosts:
+    pve01:
+      ansible_host: 10.0.0.10
+    pve02:
+      ansible_host: 10.0.0.20
+    pve03:
+      ansible_host: 10.0.0.30
+    pve04:
+      ansible_host: 10.0.0.40
+
+proxmox:
+  hosts:
+    pve10:
+      ansible_host: 10.20.2.252
+    pve11:
+      ansible_host: 10.20.2.250
+    pve12:
+      ansible_host: 10.20.2.249

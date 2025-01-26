@@ -1,0 +1,66 @@
+http:
+  routers:
+    grafana:
+      entryPoints:
+        - websecure
+      rule: "Host(`grafana.example.com`)"
+      service: grafana
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+    uptime-kuma:
+      entryPoints:
+        - websecure
+      rule: "Host(`uptime-kuma.example.com`)"
+      service: uptime-kuma
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+    influxdb:
+      entryPoints:
+        - websecure
+      rule: "Host(`influxdb.example.com`)"
+      service: influxdb
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+    tools:
+      entryPoints:
+        - websecure
+      rule: "Host(`tools.example.com`)"
+      service: tools
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+    wazuh:
+      entryPoints:
+        - websecure
+      rule: "Host(`wazuh-dashboard.example.com`)"
+      service: wazuh
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+  services:
+    uptime-kuma:
+      loadBalancer:
+        servers:
+          - url: http://10.0.2.11:3001/
+    grafana:
+      loadBalancer:
+        servers:
+          - url: http://10.0.2.12:3000/
+    influxdb:
+      loadBalancer:
+        servers:
+          - url: http://10.0.2.13:8086/
+    tools:
+      loadBalancer:
+        servers:
+          - url: http://10.0.2.14:80/
+
+    wazuh:
+      loadBalancer:
+        servers:
+          - url: https://10.0.2.10:5601/

@@ -1,0 +1,120 @@
+---
+- Media:
+    - Plex:
+        icon: plex.png
+        href: https://plex.example.com/
+        description: Plex Media Server
+
+    - Overseerr:
+        icon: overseerr.png
+        href: https://overseerr.example.com/
+        description: Find new Series and Movies
+
+    - Sonarr:
+        icon: sonarr.png
+        href: https://series.example.com
+        description: Series
+
+    - Radarr:
+        icon: radarr.png
+        href: https://Movies.example.com/
+        description: Movies
+
+    - Bazarr:
+        icon: bazarr.png
+        href: https://bazarr.example.com/
+        description: Subtitles
+
+    - Readarr:
+        icon: readarr.png
+        href: https://readarr.example.com/
+        description: Books
+
+- Home Management:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: https://homeassistant.example.com
+        description: Smart-Home Management
+
+    - Nextcloud:
+        icon: nextcloud
+        href: https://nextcloud.example.com
+        description: Home Cloud
+
+    - Mealie:
+        icon: mealie.png
+        href: https://mealie.example.com
+        description: Meal Prep and Groceries management
+
+- Networking:
+    - DNS 1:
+        icon: technitium.png
+        href: https://dns1.example.com
+        description: Main DNS Server
+
+    - DNS 2:
+        icon: technitium.png
+        href: https://dns2.example.com
+        description: Secondary DNS Server
+
+    - OpenSense:
+        icon: opnsense.png
+        href: https://opnsense.example.com
+        description: Firewall
+
+    - Traefik Node 01:
+        icon: traefik.png
+        href: https://traefik.example.com
+        description: Proxy
+
+    - TP-Link Omada:
+        icon: omada
+        href: https://omada.example.com
+        description: Omada Software Controller
+
+- Monitoring and tools:
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://uptime-kuma.example.com
+        description: Monitor Uptimes
+
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.example.com
+        description: Monitoring Dashboard
+
+    - InfluxDB:
+        icon: influxdb.png
+        href: https://influxdb.example.com
+        description: Monitoring Dashboard
+
+    - IT tools:
+        icon: it-tools.png
+        href: https://tools.example.com
+        description: Collection of very useful tools
+
+    - Wazuh Dashboard:
+        icon: wazuh.png
+        href: https://wazuh-dashboard.example.com
+        description: Dashboard for Wazuh
+
+- Infrastructure:
+    - Proxmox:
+        icon: proxmox.png
+        href: https://proxmox.example.com
+        description: Proxmox Cluster
+
+    - NAS1:
+        icon: synology-dsm
+        href: https://nas1.example.com
+        description: Synology NAS
+
+    - NAS2:
+        icon: synology-dsm
+        href: https://nas2.example.com
+        description: Synology NAS
+
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.example.com/#!/home
+        description: Portainer on docker-host-03

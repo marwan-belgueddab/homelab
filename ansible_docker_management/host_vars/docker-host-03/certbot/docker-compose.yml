@@ -1,0 +1,22 @@
+services:
+  certbot:
+    image: certbot/dns-cloudflare:latest
+    container_name: certbot
+    volumes:
+      - /mnt/nfs/letsencrypt:/etc/letsencrypt
+      - /opt/docker-data/certbot/cloudflare.ini:/etc/cloudflare.ini:ro
+      - /opt/docker-data/certbot:/var/lib/letsencrypt
+      - /opt/docker-data/certbot:/var/log/letsencrypt
+    entrypoint: >
+      sh -c "
+      certbot certonly \
+      --dns-cloudflare \
+      --dns-cloudflare-credentials /etc/cloudflare.ini \
+      --dns-cloudflare-propagation-seconds 30 \
+      --agree-tos \
+      --non-interactive \
+      --email admin@example.com \
+      -d example.com \
+      -d *.example.com \
+      && \
+      sleep infinity"

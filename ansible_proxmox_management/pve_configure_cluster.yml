@@ -1,0 +1,7 @@
+---
+- name: Configure Proxmox Cluster
+  hosts: pve
+  become: true
+
+  roles:
+    - pve_create_cluster

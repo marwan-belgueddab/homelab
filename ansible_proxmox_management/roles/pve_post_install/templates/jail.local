@@ -1,0 +1,25 @@
+[DEFAULT]
+# Ban hosts for one hour
+bantime = 3600
+
+# Find three failed attempts within ten minutes
+findtime = 600
+maxretry = 3
+
+# Action to take: block with iptables
+banaction = iptables-multiport
+banaction_allports = iptables-allports
+
+# Email notifications for bans
+destemail = root@localhost
+sender = {{ inventory_hostname }}@{{ domain }}
+mta = sendmail
+
+# Log level
+loglevel = INFO
+
+[sshd]
+enabled = true
+port = ssh
+logpath = /var/log/auth.log
+maxretry = 3

@@ -1,0 +1,30 @@
+- name: Ensure the right package for NFS is installed
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+    update_cache: true
+  become: true
+
+- name: Mount NFS share and ensure it's mounted on boot for Lets Encrypt
+  ansible.posix.mount:
+    src: "{{ nfs_server }}:{{ nfs_share_path }}"
+    path: "{{ nfs_share_mount_point }}"
+    fstype: nfs
+    opts: defaults,_netdev
+    state: mounted
+    boot: true
+  become: true
+  retries: 3
+  delay: 5
+
+- name: Mount NFS share and ensure it's mounted on boot for Docker Backup
+  ansible.posix.mount:
+    src: "{{ nfs_server }}:{{ nfs_docker_backup_path }}"
+    path: "{{ nfs_docker_backup_mount_point }}"
+    fstype: nfs
+    opts: defaults,_netdev
+    state: mounted
+    boot: true
+  become: true
+  retries: 3
+  delay: 5

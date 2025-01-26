@@ -1,0 +1,10 @@
+- name: Remove Containers and it's data
+  hosts: docker-hosts
+  become: true
+  vars:
+    container_names:
+      - doku-wiki
+
+  roles:
+    - docker_remove_container
+    - docker_remove_container_files

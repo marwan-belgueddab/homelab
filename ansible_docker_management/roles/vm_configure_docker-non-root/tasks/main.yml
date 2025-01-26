@@ -1,0 +1,52 @@
+---
+- name: Check if group docker-non-root-group exists
+  ansible.builtin.group:
+    name: docker-non-root-group
+  register: group_check
+  become: true
+
+- name: Create docker-non-root-group if it doesn't exist
+  ansible.builtin.group:
+    name: docker-non-root-group
+    gid: 2000
+    state: present
+  become: true
+
+- name: Check if user docker-non-root-user exists
+  ansible.builtin.user:
+    name: docker-non-root-user
+  register: user_check
+  become: true
+
+- name: Create docker-non-root-user if it doesn't exist (no home directory)
+  ansible.builtin.user:
+    name: docker-non-root-user
+    uid: 2000
+    group: docker-non-root-group
+    create_home: false # Should not create a home directly.. but still do
+    shell: /bin/false # Set shell to /bin/false
+    state: present
+  become: true
+
+- name: Add user docker-non-root-user to docker group (if it exists)
+  ansible.builtin.user:
+    name: docker-non-root-user
+    groups: docker
+    append: true
+  ignore_errors: true
+  become: true
+
+- name: Create /opt/docker-data directory if it doesn't exist
+  ansible.builtin.file:
+    path: /opt/docker-data
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Change ownership of /opt/docker-data to docker-non-root-user
+  ansible.builtin.file:
+    path: /opt/docker-data
+    owner: docker-non-root-user
+    group: docker-non-root-group
+    recurse: true # Apply ownership recursively to subdirectories/files
+  become: true

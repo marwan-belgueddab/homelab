@@ -1,0 +1,38 @@
+###########################
+## GENERAL CONFIGURATION ##
+###########################
+timezone: "America/Toronto"
+locale: "en_US.UTF-8"
+# DNS settings
+dns_servers:
+  - "10.53.53.53"
+  - "1.1.1.1"
+domain: "example.com"
+dns_over_tls_servers:
+  - "tls://10.53.53.53"
+  - "tls://1.1.1.1"
+dns_over_https_servers:
+  - "https://dns1.{{ domain }}"
+  - "https://dns2.{{ domain }}"
+
+# VLAN Definitions
+gateway_vlan: "192.168.0.0/24" # Your DMZ/VLAN1/Whatever you want
+management_vlan: "10.0.1.0/24" # proxmox hosts, nas, ansible control node
+compute_vlan: "10.0.2.0/24" # virtual machine, docker host etc
+IOT_vlan: "10.0.199.0/24" # for IOT virtual machines
+
+# VLAN IDs
+vlan_definitions:
+  - id: 1
+    name: management_vlan
+  - id: 2
+    name: compute_vlan
+  - id: 199
+    name: IOT_vlan
+
+debian_image_url: ""
+debian_image_name: ""
+ubuntu_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+ubuntu_image_name: noble-server-cloudimg-amd64.qcow2
+
+authentik_issuer_url: https://auth.{{ domain }}/application/o/proxmox/

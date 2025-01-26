@@ -1,0 +1,22 @@
+services:
+  dns2:
+    container_name: dns2
+    hostname: dns2.example.com
+    image: technitium/dns-server:latest
+    user: 1000:1000
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /opt/docker-data/dns2:/etc/dns
+    restart: always
+    sysctls:
+      - net.ipv4.ip_local_port_range=1024 65000
+    networks:
+      gateway_vlan:
+        ipv4_address: 10.54.54.54
+
+    environment:
+      - DNS_SERVER_DOMAIN=dns2.example.com #The primary domain name used by this DNS Server to identify itself.
+networks:
+  gateway_vlan:
+    external: true

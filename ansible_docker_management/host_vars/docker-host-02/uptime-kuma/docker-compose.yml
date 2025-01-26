@@ -1,0 +1,25 @@
+services:
+  uptime-kuma:
+    container_name: uptime-kuma
+    image: louislam/uptime-kuma:1
+    restart: always
+    volumes:
+      - uptime-kuma:/app/data:rw
+
+    # user: 2000:2000
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.2.11
+
+networks:
+  service_restricted_vlan:
+    external: true
+
+volumes:
+  uptime-kuma:
+    name: uptime-kuma
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/docker-data/uptime-kuma

@@ -1,0 +1,27 @@
+---
+# roles/pve_add_users/taks/pve_create_authentik_realm.yml
+- name: Check if Authentik realm exists
+  ansible.builtin.command:
+    cmd: "pveum realm list"
+  register: realm_list
+  changed_when: false
+  failed_when: realm_list.rc != 0
+
+- name: Ensure Authentik realm exists in Proxmox
+  ansible.builtin.command:
+    cmd: >
+      pveum realm add authentik
+      --type openid
+      --client-id "{{ pve_authentik_client_id }}"
+      --client-key "{{ pve_authentik_client_secret }}"
+      --issuer-url "{{ authentik_issuer_url }}"
+      --username-claim username
+      --autocreate 1
+  when: "'authentik' not in realm_list.stdout"
+  register: realm_add_result
+  changed_when: "'already exists' not in realm_add_result.stderr"
+  failed_when: realm_add_result.rc != 0 and 'already exists' not in realm_add_result.stderr
+
+- name: Confirm Authentik realm creation
+  ansible.builtin.debug:
+    msg: "Authentik realm created successfully or already exists."

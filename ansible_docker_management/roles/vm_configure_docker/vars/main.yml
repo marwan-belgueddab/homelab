@@ -1,0 +1,12 @@
+docker_pkgs:
+  - docker.io
+  - docker-doc
+  - docker-compose
+  - docker-compose-v2
+  - podman-docker
+  - containerd
+  - runc
+
+arch_mapping: # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
+  - x86_64: amd64
+  - aarch64: arm64

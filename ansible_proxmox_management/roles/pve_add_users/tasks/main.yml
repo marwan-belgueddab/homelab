@@ -1,0 +1,15 @@
+---
+- name: Fetch form Vault
+  ansible.builtin.import_tasks: fetch_from_vault.yml
+
+- name: Create the Proxmox Ansible User
+  ansible.builtin.import_tasks: pve_add_ansible_user.yml
+
+- name: Create the Proxmox Admin User
+  ansible.builtin.import_tasks: pve_add_admin_user.yml
+
+- name: Create the Authentik Realm
+  ansible.builtin.import_tasks: pve_create_authentik_realm.yml
+
+- name: Configure SSH on Proxmox
+  ansible.builtin.import_tasks: ssh_configuration.yml

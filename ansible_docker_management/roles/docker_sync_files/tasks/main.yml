@@ -1,0 +1,59 @@
+---
+- name: Get list of directories in host_vars for {{ inventory_hostname }}
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}"
+    file_type: directory
+    patterns: "*"
+  register: host_vars_dirs
+  delegate_to: localhost
+
+- name: Filter directories to match defined containers
+  ansible.builtin.set_fact:
+    matched_container_dirs: "{{ host_vars_dirs.files | map(attribute='path') | map('basename') | intersect(container_names) | list }}"
+  delegate_to: localhost
+
+- name: Prepare directory mapping for containers
+  ansible.builtin.set_fact:
+    container_data_dirs: >-
+      {{ container_data_dirs | default({}) | combine({
+          item: {
+            'data_src_dir': playbook_dir ~ '/files/containers/' ~ item,
+            'volume_dest_dir': '/opt/docker-data/' ~ item
+          }
+        }) }}
+  loop: "{{ matched_container_dirs }}"
+  delegate_to: localhost
+
+- name: Ensure container directories are available
+  ansible.builtin.file:
+    path: "{{ container_data_dirs[item]['volume_dest_dir'] }}"
+    state: directory
+    mode: "0755"
+    owner: docker-non-root-user
+    group: docker-non-root-group
+  become: true
+  loop: "{{ matched_container_dirs }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Check if data source directory exists for each container
+  ansible.builtin.stat:
+    path: "{{ container_data_dirs[item]['data_src_dir'] }}"
+  register: data_src_dir_stat
+  loop: "{{ matched_container_dirs }}"
+  delegate_to: localhost
+  loop_control:
+    label: "{{ item }}"
+
+- name: Copy container data directory for each container
+  ansible.posix.synchronize:
+    src: "{{ container_data_dirs[item]['data_src_dir'] }}/"
+    dest: "{{ container_data_dirs[item]['volume_dest_dir'] }}/"
+    recursive: true
+    rsync_opts:
+      - "--chown=2000:2000" # need to use a viriable instead of hardcoding the value
+  when: >
+    data_src_dir_stat.results | selectattr('item', 'equalto', item) | map(attribute='stat.exists') | first | bool
+  loop: "{{ matched_container_dirs }}"
+  loop_control:
+    label: "{{ item }}"

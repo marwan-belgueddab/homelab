@@ -1,0 +1,40 @@
+---
+- name: Stop Proxmox Virtual Machine
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ ansible_host }}"
+    vmid: "{{ item }}"
+    node: "{{ node }}"
+    state: "stopped" # Setting the state to 'absent' will delete the VM
+    force: true
+  delegate_to: localhost
+  with_items: "{{ vmids }}"
+  register: pve_vm_stop_result
+  notify:
+    - Sleep
+
+- name: Delete Proxmox Virtual Machine
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ ansible_host }}"
+    vmid: "{{ item }}"
+    node: "{{ node }}"
+    state: "absent" # Setting the state to 'absent' will delete the VM
+  delegate_to: localhost
+  with_items: "{{ vmids }}"
+  register: pve_vm_delete_result
+
+- name: Display result of VM deletion
+  ansible.builtin.debug:
+    var: pve_vm_delete_result
+
+- name: Ensure the user-data file is removed
+  become: true
+  ansible.builtin.file:
+    path: /var/lib/vz/snippets/docker-host.yml # Specify the correct path to the snippet folder
+    state: absent
+  with_items: "{{ vmids }}"

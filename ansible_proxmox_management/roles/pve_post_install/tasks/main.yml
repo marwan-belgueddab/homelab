@@ -1,0 +1,13 @@
+# ansible_proxmox_management/roles/pve_post_install/tasks/main.yml
+---
+- name: Post install configuration
+  ansible.builtin.include_tasks: post_install_configuration.yml
+
+- name: Disable IPV6
+  ansible.builtin.include_tasks: network.yml
+
+- name: Configure DNS
+  ansible.builtin.include_tasks: dns.yml
+
+- name: Configure Fail2Ban
+  ansible.builtin.include_tasks: fail2ban.yml

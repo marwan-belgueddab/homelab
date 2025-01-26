@@ -1,0 +1,8 @@
+# Cluster-wide Firewall Rules for Proxmox
+[RULES]
+IN ACCEPT -p tcp --dport 22 -source {{ management_vlan }} # Allow SSH from Management VLAN
+IN ACCEPT -p tcp --dport 8006 -source {{ management_vlan }} # Allow WebUI from Management VLAN
+IN ACCEPT -p tcp --dport 22 -source {{ trusted_vlan }} # Allow SSH from Trusted VLAN
+IN ACCEPT -p tcp --dport 8006 -source {{ trusted_vlan }} # Allow WebUI from Trusted VLAN
+IN ACCEPT -p udp --dport 5405:5412 -source {{ management_vlan }} #allow corosync for clustering
+IN DROP # Deny all other incoming traffic

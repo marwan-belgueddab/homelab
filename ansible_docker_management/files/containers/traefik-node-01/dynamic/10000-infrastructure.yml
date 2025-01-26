@@ -1,0 +1,76 @@
+http:
+  routers:
+    dns2:
+      entryPoints:
+        - websecure
+      rule: "Host(`dns2.example.com`)"
+      service: dns2
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+    proxmox:
+      entryPoints:
+        - websecure
+      rule: "Host(`proxmox.example.com`)"
+      service: proxmox
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+    nas1:
+      entryPoints:
+        - websecure
+      rule: "Host(`nas1.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: nas1
+
+    nas2:
+      entryPoints:
+        - websecure
+      rule: "Host(`nas2.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: nas2
+
+    homeassistant:
+      # For Homeassistant config, check: https://www.home-assistant.io/integrations/http/#reverse-proxies
+      # This relies on Homeassistant using http. No certs are needed in the Homeassistant config.
+      entryPoints:
+        - websecure
+      rule: "Host(`homeassistant.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: homeassistant
+
+  services:
+    dns2:
+      loadBalancer:
+        servers:
+          - url: http://10.54.54.54:5380/
+    proxmox:
+      loadBalancer:
+        servers:
+          - url: https://10.0.0.10:8006/
+
+    nas1:
+      loadBalancer:
+        servers:
+          - url: "https://10.0.0.20:5001"
+        passHostHeader: true
+
+    nas2:
+      loadBalancer:
+        servers:
+          - url: "https://10.0.0.21:5001"
+        passHostHeader: true
+
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.30:8123"
+        passHostHeader: true

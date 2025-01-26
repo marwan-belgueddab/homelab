@@ -1,0 +1,66 @@
+---
+# Remove cloud-init file
+- name: Stop Proxmox Virtual Machine
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ pve_primary_node }}"
+
+    vmid: "{{ item.value.vmid }}"
+    state: "stopped"
+    force: true
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: inventory_hostname == pve_primary_node and item.value.state == "new" # Ensuring only VM's with the state new are stopped in the inveentory file
+  delegate_to: "{{ pve_primary_node }}" # Use this specially when running a cluster, otherwise use the inventory hostname
+  notify:
+    - Sleep
+
+- name: Remove cloud-init file
+  ansible.builtin.file:
+    path: "{{ snippets_path }}{{ item.value.cloud_init_template_name }}"
+    state: absent
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    pause: 5
+    label: "{{ item.key }}"
+
+# Remove cloud-init drive
+- name: Remove cloud-init drive
+  community.general.proxmox_disk:
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ pve_primary_node }}"
+
+    vmid: "{{ item.value.vmid }}"
+    disk: "ide2"
+    state: absent
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: inventory_hostname == pve_primary_node and item.value.state == "new"
+  delegate_to: "{{ pve_primary_node }}"
+
+- name: Pause
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: Start VMs
+  community.general.proxmox_kvm:
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ pve_primary_node }}"
+
+    vmid: "{{ item.value.vmid }}"
+    name: "{{ item.key }}"
+    state: "started"
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    pause: 5
+    label: "{{ item.key }}"
+  when: inventory_hostname == pve_primary_node and item.value.state == "new"
+  delegate_to: "{{ pve_primary_node }}"

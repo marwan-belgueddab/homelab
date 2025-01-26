@@ -1,0 +1,7 @@
+---
+- name: Configure SDN and VLAN on Proxmox
+  hosts: pve
+  become: true
+
+  roles:
+    - pve_sdn_vlan_setup

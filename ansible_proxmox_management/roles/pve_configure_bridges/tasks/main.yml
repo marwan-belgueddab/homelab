@@ -1,0 +1,43 @@
+---
+- name: Set bridge interface name {{ pve_compute_bridge }}
+  set_fact:
+    iface_name: {{ pve_compute_bridge }}
+
+- name: Get existing network interfaces (excluding loopback, existing bridges, and wireless devices)
+  ansible.builtin.shell: ip -br link show | awk '$3 != "lo" && $2 !~ /@/ && !/vmbr/ && !/wlan/ && !/wlp/ && !/wl*/ {print $1,$2}'
+  register: interfaces_with_state
+  changed_when: false
+
+- name: Find a suitable interface (preferably DOWN)
+  ansible.builtin.set_fact:
+    bridge_interface: "{{ (interfaces_with_state.stdout_lines | select('search', ' DOWN$') | map('split', ' ') | map(attribute=0) | list | first) | default((interfaces_with_state.stdout_lines | select('search', ' UP$') | map('split', ' ') | map(attribute=0) | list | first)) }}" #select down first and if none select up
+  when: interfaces_with_state.stdout_lines | length > 0
+
+- name: Fail if no suitable interface is found
+  ansible.builtin.fail:
+    msg: "No suitable network interface found to create the bridge. Ensure an interface other than loopback, existing bridges and wireless interfaces is available."
+  when: bridge_interface is not defined
+
+- name: Check if bridge {{ iface_name }} already exists
+  ansible.builtin.command: pvesh get /nodes/{{ inventory_hostname }}/network/{{ iface_name }}
+  register: bridge_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: Create bridge {{ iface_name }} using pvesh
+  ansible.builtin.shell: pvesh create /nodes/{{ inventory_hostname }}/network \
+    --iface {{ iface_name }} \
+    --type bridge \
+    --autostart 1 \
+    --bridge_ports {{ bridge_interface }}
+  become: true
+  changed_when: true
+  when: bridge_exists.rc != 0
+  register: pvesh_result
+  ignore_errors: true
+
+- name: display bridge configuration
+  ansible.builtin.command: pvesh set /nodes/{{ inventory_hostname }}/network/
+  register: bridge_config
+  become: true
+  changed_when: false

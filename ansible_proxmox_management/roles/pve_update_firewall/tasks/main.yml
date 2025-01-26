@@ -1,0 +1,27 @@
+---
+- name: Ensuring the firewall directory exists on the nodes
+  ansible.builtin.file:
+    path: "/etc/pve/firewall"
+    mode: "0640"
+    state: directory
+
+- name: Ensuring the existence of the firewall configuration file
+  ansible.builtin.file:
+    path: "/etc/pve/firewall/cluster.fw"
+    state: touch
+    mode: '0640'
+    modification_time: preserve
+    access_time: preserve
+
+- name: Copy the firewall template to the proxmox cluster
+  ansible.builtin.template:
+    src: cluster_fw.j2
+    dest: "/etc/pve/firewall/cluster.fw"
+    mode: "0640"
+    force: true
+
+- name: Verify Proxmox cluster-wide firewall rules
+  ansible.builtin.command:
+    cmd: "cat /etc/pve/firewall/cluster.fw"
+  register: firewall_rules_check
+  changed_when: false

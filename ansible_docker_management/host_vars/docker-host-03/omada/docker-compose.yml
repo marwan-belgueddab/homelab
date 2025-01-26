@@ -1,0 +1,35 @@
+services:
+  omada:
+    container_name: omada
+    image: mbentley/omada-controller:5.15
+    stop_grace_period: 60s
+    environment:
+      - PUID=508
+      - PGID=508
+      - MANAGE_HTTP_PORT=8088
+      - MANAGE_HTTPS_PORT=8043
+      - PORTAL_HTTP_PORT=8088
+      - PORTAL_HTTPS_PORT=8843
+      - PORT_APP_DISCOVERY=27001
+      - PORT_ADOPT_V1=29812
+      - PORT_UPGRADE_V1=29813
+      - PORT_MANAGER_V1=29811
+      - PORT_MANAGER_V2=29814
+      - PORT_DISCOVERY=29810
+      - SHOW_SERVER_LOGS=true
+      - SHOW_MONGODB_LOGS=false
+      # - SSL_CERT_NAME=tls.crt
+      # - SSL_KEY_NAME=tls.key
+      - TZ=America/Toronto
+
+    volumes:
+      - /opt/docker-data/omada/data:/opt/tplink/EAPController/data
+      - /opt/docker-data/omada/logs:/opt/tplink/EAPController/logs
+    restart: unless-stopped
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.3.10
+
+networks:
+  service_restricted_vlan:
+    external: true

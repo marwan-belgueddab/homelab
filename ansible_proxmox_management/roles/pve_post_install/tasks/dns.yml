@@ -1,0 +1,7 @@
+---
+- name: Configure resolv.conf for regular DNS
+  ansible.builtin.lineinfile:
+    path: /etc/resolv.conf
+    line: "nameserver {{ item }}"
+    state: present
+  loop: "{{ dns_servers }}"

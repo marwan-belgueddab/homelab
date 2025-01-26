@@ -1,0 +1,8 @@
+---
+- name: Create a virtual machine based on values in group vars
+  hosts: pve
+  become: true
+
+  roles:
+    - pve_download_image
+    - pve_create_vm

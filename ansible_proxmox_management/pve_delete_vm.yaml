@@ -1,0 +1,10 @@
+- name: Delete virtual machines hosted on proxmox
+  hosts: pve01
+  roles:
+    - pve_delete_vm
+  vars:
+    node: "pve01" # Ensure this matches your actual node name
+    vmids:
+      - 1001
+      - 100
+      - 9999

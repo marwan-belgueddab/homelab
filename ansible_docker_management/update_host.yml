@@ -1,0 +1,9 @@
+---
+- name: Update the hosts
+  hosts: docker-hosts
+  # hosts: pve
+  # hosts: proxmox
+  # hosts: docker-hosts-test
+  become: true
+  roles:
+    - update_hosts

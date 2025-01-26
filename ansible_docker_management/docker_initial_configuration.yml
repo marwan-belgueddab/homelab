@@ -1,0 +1,8 @@
+---
+- name: Configure the docker environment before deploying containers
+  hosts: docker-hosts-test
+  roles:
+    - docker_install_requirements
+    - docker_create_network
+    - vm_mount_nfs_shares
+    - vm_configure_docker-non-root

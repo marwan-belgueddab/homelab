@@ -1,0 +1,17 @@
+---
+- name: Set facts for current compose file
+  ansible.builtin.set_fact:
+    container_dir_path: "{{ compose_file.path | dirname }}"
+    docker_compose_file: "{{ compose_file.path }}"
+    container_dir_name: "{{ compose_file.path | dirname | basename }}"
+  delegate_to: localhost
+
+- name: Removing container {{ container_dir_name }}
+  community.docker.docker_compose_v2:
+    definition: "{{ lookup('file', docker_compose_file) | from_yaml }}"
+    project_name: "{{ container_dir_name }}"
+    pull: missing
+    state: absent
+  become: true
+  tags:
+    - deploy_container

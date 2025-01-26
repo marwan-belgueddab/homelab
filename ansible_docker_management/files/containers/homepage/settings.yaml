@@ -1,0 +1,35 @@
+---
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Settings
+
+providers:
+  openweathermap: openweathermapapikey
+  weatherapi: weatherapiapikey
+
+headerStyle: clean
+hideVersion: true
+
+layout:
+  Media:
+    style: row
+    columns: 3
+  Home Management:
+    style: row
+    columns: 3
+  Monitoring:
+    style: row
+    columns: 4
+  Networking:
+    style: row
+    columns: 4
+  Infrastructure:
+    style: row
+    columns: 4
+
+background:
+  # blur: sm
+  #saturate: 50
+  brightness: 10
+  opacity: 30
+
+# cardBlur: md

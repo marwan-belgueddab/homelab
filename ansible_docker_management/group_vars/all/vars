@@ -1,0 +1,77 @@
+###########################
+## GENERAL CONFIGURATION ##
+###########################
+timezone: "America/Toronto"
+locale: "en_US.UTF-8"
+# DNS settings
+dns_servers:
+  - "10.53.53.53"
+  - "1.1.1.1"
+domain: "example.com"
+dns_over_tls_servers:
+  - "tls://10.53.53.53"
+  - "tls://1.1.1.1"
+dns_over_https_servers:
+  - "https://dns1.{{ domain }}"
+  - "https://dns2.{{ domain }}"
+
+# VLAN Definitions
+gateway_vlan: "192.168.0.0/24" # Your DMZ/VLAN1/Whatever you want
+management_vlan: "10.0.1.0/24" # proxmox hosts, nas, ansible control node
+compute_vlan: "10.0.2.0/24" # virtual machine, docker host etc
+IOT_vlan: "10.0.199.0/24" # for IOT virtual machines
+
+# VLAN IDs
+vlan_definitions:
+  - id: 1
+    name: management_vlan
+  - id: 2
+    name: compute_vlan
+  - id: 199
+    name: IOT_vlan
+
+###################
+## VM MANAGEMENT ##
+###################
+
+ansible_user: "{{ vm_ansible_user }}" # As defined in the ansible_proxmox_management playbooks, or manualy if you have already manually created a user for ansible to use
+ansible_ssh_private_key_file: "{{ vm_ansible_ssh_private_key_file }}" # Only uses ssh keys
+nfs_server: "10.0.0.50" # Change to put the ip address for the nfs_server
+nfs_share_path: "/volume1/letsencrypt" # This is the path on the nfs_server, volume1 for synology for example, can be anything you want
+nfs_share_mount_point: "/mnt/nfs/letsencrypt" # This is the path on the docker-host, the virtual machine. 
+nfs_docker_backup_path: "/volume1/docker-backup"
+nfs_docker_backup_mount_point: "/mnt/nfs/docker-backup"
+
+#######################
+## Docker MANAGEMENT ##
+#######################
+
+docker-data: /opt/docker-data/ # directory on the docker-host where the containers files are saved
+docker_networks:
+  - name: proxy
+    driver: bridge
+    subnet: 10.100.0.0/16
+    gateway: 10.100.0.1
+    iprange: 10.100.0.0/16
+
+  - name: authentik_backend
+    driver: bridge
+    subnet: 10.111.0.0/24
+    gateway: 10.111.0.1
+    iprange: 10.111.0.0/24
+
+  - name: management_vlan
+    driver: macvlan
+    subnet: "{{ management_vlan }}"
+    gateway: 10.0.0.1
+    iprange: "{{ management_vlan }}"
+    options:
+      parent: eth0.1 # If for some reasons you want to connect to vlan1, change to accomodate your setup
+
+  - name: compute_vlan
+    driver: macvlan
+    subnet: "{{ compute_vlan }}"
+    gateway: 10.0.2.1
+    iprange: "{{ compute_vlan }}"
+    options:
+      parent: "ens19" # Make sure that you have defined the right bridge on the virtual machine configuration as net1. 

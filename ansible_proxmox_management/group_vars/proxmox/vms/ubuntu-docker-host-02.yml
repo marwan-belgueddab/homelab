@@ -1,0 +1,41 @@
+vm_config:
+  ubuntu-docker-host-02:
+    vm_image_name: noble-server-cloudimg-amd64.qcow2
+    vm_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+  
+    # Compute
+    name: "ubuntu-docker-host-02"
+    vmid: "10002"
+    node: "pve02"
+    memory: 4096
+    cores: 4
+    tags: 
+      - networking
+      - ubuntu
+      - docker
+    # Networking
+    net:
+      net0: "virtio,bridge=vmbr1"
+    ipconfig:
+      # ipconfig0: "ip=dhcp"
+      ipconfig0: "ip=10.0.0.20/24,gw=10.0.0.1"
+    # Cloud-init configuration
+    citype: "nocloud"
+    cicustom: "user=local:snippets/ubuntu-docker-host-02.yml" # the file will be saved until this name on Proxmox. Ideally use the VM for better management
+    cloud_init_template: "docker-host.j2"
+    cloud_init_template_name: "ubuntu-docker-host-02.yml" # the value should be similar to the cicustom name
+    # Storage
+    bootdisk: "scsi0"
+    disk: "scsi0"
+    size: "32G"
+    scsihw: "virtio-scsi-pci"
+    storage: "local-lvm"
+    scsi:
+      scsi0: "local-lvm:0,import-from=local:0/noble-server-cloudimg-amd64.qcow2,format=qcow2"
+    ide:
+      ide2: "local-lvm:cloudinit"
+
+    # Other VM Configuration
+    agent: "enabled=1"
+    onboot: true
+    state: new # This is to indicate if the virtual machine needs to be created or already exists in Proxmox. It needs to be manually definded.

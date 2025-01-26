@@ -1,0 +1,80 @@
+---
+# Step 1: Lookup cluster information using pvecm status
+- name: Check if Corosync config exists
+  ansible.builtin.stat:
+    path: /etc/pve/corosync.conf
+  register: corosync_stat
+
+
+- name: Lookup cluster information
+  ansible.builtin.command: pvecm status
+  register: _pvecm_status
+  when: corosync_stat.stat.exists
+  ignore_errors: true
+  changed_when: false
+
+# Step 2: Identify if the host is already part of a cluster
+- name: Identify if the host is already part of a cluster
+  ansible.builtin.set_fact:
+    _proxmox_cluster_name: pvecm_output.stdout is regex_search('^Name:\s*(.*)', '\\1')
+  when: "_pvecm_status.rc | default('') == 0"
+
+# Step 3: Identify all clusters the hosts may be in (we only care about the primary node and its cluster)
+- name: Identify all clusters that the hosts may be in
+  ansible.builtin.set_fact:
+    _pve_found_clusters: "{{ _pve_found_clusters | default([]) + [_pve_active_cluster] }}"
+  when: _pve_active_cluster is defined
+
+
+# Step 4: Ensure that hosts are not in multiple existing clusters
+- name: Ensure that hosts found are not in multiple existing clusters
+  ansible.builtin.assert:
+    that:
+      - "_pve_found_clusters | default([]) | length <= 1"
+    msg: "Some or all of the hosts are part of multiple clusters. Please ensure hosts are only part of one cluster."
+
+
+# Step 5: Ensure that if we find an existing cluster, it matches the specified cluster name
+- name: Ensure the found cluster matches the specified cluster name
+  ansible.builtin.assert:
+    that:
+      - "_pve_found_clusters | length > 0"
+      - "_pve_found_clusters[0] == pve_cluster_name"
+    msg: "Some or all of the hosts in the inventory, specifically '{{ inventory_hostname }}', appear to be in a cluster named \
+          '{{ _pve_found_clusters | default([]) | first }}', which differs from the specified clustername of \
+          '{{ pve_cluster_name }}'. Please ensure the clustername is correct. An existing cluster's name cannot be modified."
+  when: "_pve_found_clusters is defined and (_pve_found_clusters | length > 0)"
+
+# Step 6: Default initialization node is the primary node
+- name: Default initialization node to the primary node
+  ansible.builtin.set_fact:
+    _init_node: "{{ _init_node | default(groups['all'][0]) }}"
+  when: inventory_hostname == pve_primary_node
+
+# Step 7: Initialize the Proxmox cluster if no cluster found
+- name: Initialize the Proxmox cluster if no cluster is found
+  ansible.builtin.command: >
+    pvecm create {{ pve_cluster_name }}
+  args:
+    creates: "{{ pve_cluster_conf }}"
+  when:
+    - "_pve_found_clusters is not defined"
+    - "inventory_hostname == pve_primary_node"
+
+# Step 8: Wait for quorum on initialization node
+- name: Wait for quorum on primary node
+  ansible.builtin.command: pvecm status
+  register: _pvecm_quorum_status
+  when:
+    - "_pve_found_clusters is not defined"
+    - "inventory_hostname == pve_primary_node"
+  retries: 5
+  delay: 10
+  until: "_pvecm_quorum_status.stdout | regex_search('Quorate\\s*:\\s*Yes')"
+  changed_when: "_pvecm_quorum_status.stdout | regex_search('Quorate\\s*:\\s*Yes') is not defined"
+
+- name: Configure SSH
+  ansible.builtin.include_tasks: configure_ssh.yml
+
+- name: Join Cluster
+  ansible.builtin.include_tasks: join_cluster.yml

@@ -1,0 +1,32 @@
+# ENSURE TO MODIFY THE VALUES TO YOUR VARIABLES AND YOUR LIKING
+# Except the api_token_file_path, all other files and variables should be existing before running any playbook
+
+########################
+## PROXMOX MANAGEMENT ##
+########################
+# Proxmox root default user
+pve_root_user: root
+pve_root_password: MyVeryStrongAndPrivateProxmoxRootPassword
+pve_root_ssh_private_key_file: "~/.ssh/pve_root_id_rsa"
+pve_root_ssh_public_key_file: "~/.ssh/pve_root_id_rsa.pub"
+
+# Ansible Proxmox ssh and API user information
+pve_ansible_user: pve_ansible_user
+pve_ansible_ssh_private_key_file: "~/.ssh/ansible_id_rsa"
+pve_ansible_ssh_public_key_file: "~/.ssh/ansible_id_rsa.pub"
+pve_ssh_port: 22
+
+# - Proxmox nodes API Tokens - #
+api_token_file_path: "~/.ansible/{{ inventory_hostname }}-{{ pve_ansible_token_id }}"
+
+###################
+## VM MANAGEMENT ##
+###################
+
+# Virtual Machines User Management
+vm_admin_ssh_private_key_file: "~/.ssh/homelab"
+vm_admin_ssh_public_key_file: "~/.ssh/homelab.pub"
+
+vm_ansible_user: vm_ansible_user
+vm_ansible_ssh_private_key_file: "~/.ssh/ansible2_id_rsa"
+vm_ansible_ssh_public_key_file: "~/.ssh/ansible2_id_rsa.pub"

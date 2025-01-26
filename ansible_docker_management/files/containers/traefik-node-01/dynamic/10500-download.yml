@@ -1,0 +1,40 @@
+http:
+  routers:
+    flaresolverr:
+      entryPoints:
+        - websecure
+      rule: "Host(`flaresolverr.example.com`)"
+      service: flaresolverr
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+    prowlarr:
+      entryPoints:
+        - websecure
+      rule: "Host(`prowlarr.example.com`)"
+      service: prowlarr
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+    overseerr:
+      entryPoints:
+        - websecure
+      rule: "Host(`overseerr.example.com`)"
+      service: overseerr
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+  services:
+    flaresolverr:
+      loadBalancer:
+        servers:
+          - url: http://10.0.5.10:8191/
+    prowlarr:
+      loadBalancer:
+        servers:
+          - url: http://10.0.5.12:9696/
+    overseerr:
+      loadBalancer:
+        servers:
+          - url: http://10.0.5.13:5055/

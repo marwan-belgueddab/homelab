@@ -1,0 +1,6 @@
+---
+- name: Configure Proxmox Bridges
+  hosts: pve
+
+  roles:
+    - pve_configure_bridges

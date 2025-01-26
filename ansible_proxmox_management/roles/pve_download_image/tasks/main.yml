@@ -1,0 +1,60 @@
+# ---
+# Create a download folder if it doesn't exist
+- name: Create download folder
+  ansible.builtin.file:
+    path: "{{ pve_image_path }}"
+    mode: "0755"
+    state: directory
+
+# Check if the image file already exists and download if it doesn't
+# Check and download images
+- name: Check if images exist
+  ansible.builtin.stat:
+    path: "{{ pve_image_path }}/{{ item.value.vm_image_name }}"
+  register: image_status_all
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Set image status facts
+  ansible.builtin.set_fact:
+    image_exists: "{{ image_status_all.results[item.key].stat.exists | default(false) }}"
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Download Virtual Machine image
+  ansible.builtin.get_url:
+    url: "{{ item.value.vm_image_url }}"
+    dest: "{{ pve_image_path }}/{{ item.value.vm_image_name }}"
+    mode: "0644"
+  when: not image_exists
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    pause: 5
+    label: "{{ item.key }}"
+  become: true
+
+# Extract .xz image if present
+- name: Extract .xz image if present
+  ansible.builtin.command:
+    cmd: "unxz -f {{ pve_image_path }}/{{ item.value.vm_image_name }}"
+    chdir: "{{ pve_image_path }}"
+  when:
+    - item.value.vm_image_name.endswith('.xz')
+    - (image_status_all.results | selectattr('item.key', 'equalto', item.key) | first).stat.exists | default(false)
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  become: true
+  ignore_errors: false
+
+# Verify extracted image exists
+- name: Verify extracted image exists
+  ansible.builtin.stat:
+    path: "{{ pve_image_path }}/{{ item.value.vm_image_name | regex_replace('\\.xz$', '') }}"
+  register: extracted_image_status
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  when: item.value.vm_image_name.endswith('.xz')

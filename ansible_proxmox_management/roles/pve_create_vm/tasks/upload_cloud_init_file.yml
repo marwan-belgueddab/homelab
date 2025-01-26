@@ -1,0 +1,16 @@
+---
+- name: Upload Cloud-Init user-data
+  become: true
+  ansible.builtin.template:
+    src: "{{ item.value.cloud_init_template }}"
+    dest: "{{ snippets_path }}{{ item.value.cloud_init_template_name }}"
+    mode: "0644"
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  check_mode: false # Important for correct error handling
+  register: template_result # Register the result
+  # failed_when: template_result.failed # Fail if the task itself failed
+  when:
+    - item.value.cloud_init_template is defined
+    - item.value.cloud_init_template_name is defined

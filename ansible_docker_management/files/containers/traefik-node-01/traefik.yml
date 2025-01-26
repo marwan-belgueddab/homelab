@@ -1,0 +1,40 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+serversTransport:
+  insecureSkipVerify: true
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        domains:
+          - main: example.com
+            sans:
+              - "*.example.com"
+
+providers:
+  file:
+    directory: "/dynamic"
+    watch: true
+  docker:
+    watch: true
+    defaultRule: 'Host(`{{ index .Labels "com.docker.compose.service"}}.example.com`)'
+    endpoint: "tcp://docker-socket-proxy:2375"
+    exposedByDefault: false
+
+api:
+  dashboard: true
+  insecure: true
+log:
+  level: DEBUG

@@ -1,0 +1,6 @@
+---
+- name: Remove cloud init related files and drives
+  hosts: pve
+  become: true
+  roles:
+    - pve_vm_post_install_cleanup

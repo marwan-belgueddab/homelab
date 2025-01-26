@@ -1,0 +1,46 @@
+---
+- name: Create virtual machine in Proxmox
+  community.general.proxmox_kvm:
+    # Proxmox API configuration
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ pve_primary_node }}"
+
+    # Virtual machine configuration
+    autostart: "{{ item.value.autostart | default(true) }}"
+    vmid: "{{ item.value.vmid }}"
+    name: "{{ item.key }}"
+    node: "{{ item.value.node }}"
+    memory: "{{ item.value.memory }}"
+    cores: "{{ item.value.cores }}"
+    tags: "{{ item.value.tags | default(omit) }}"
+    bootdisk: "{{ item.value.bootdisk }}"
+    scsihw: "{{ item.value.scsihw }}"
+    storage: "{{ vm_storage }}"
+    searchdomains: "{{ dns_servers }}"
+    nameservers: "{{ dns_servers }}"
+    net: "{{ item.value.net }}"
+    ipconfig: "{{ item.value.ipconfig }}"
+
+    # Cloud-init configuration
+    citype: "{{ item.value.citype | default(omit) }}"
+    cicustom: "{{ item.value.cicustom | default(omit) }}"
+    cloud_init_template: "{{ item.value.cloud_init_template | default(omit)}}"
+
+    efidisk0: "{{ item.value.efidisk0 | default(omit) }}"
+    bios: "{{ item.value.bios | default('seabios') }}"
+    ostype: "{{ item.balue.ostype | default('l26') }}"
+    scsi: "{{ item.value.scsi }}"
+    ide: "{{ item.value.ide | default(omit) }}"
+    agent: "enabled=1"
+    onboot: "{{ item.value.onboot | default('true') }}"
+    state: present
+    timeout: 30 # Timeout in seconds
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    pause: 5
+    label: "{{ item.key }}"
+  register: created_pve_vm
+  delegate_to: "{{ pve_primary_node }}" # Delegate to primary node
+  when: inventory_hostname == pve_primary_node and item.value.state == "new" # Only run if on primary node

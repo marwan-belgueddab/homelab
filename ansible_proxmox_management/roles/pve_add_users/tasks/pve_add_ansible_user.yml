@@ -1,0 +1,106 @@
+---
+### Section 1: Add Ansible SSH User ###
+- name: Ensure Ansible SSH user exists
+  ansible.builtin.user:
+    name: "{{ pve_ansible_user_ssh }}"
+    comment: "Ansible SSH User"
+    shell: "/bin/bash"
+    groups: "sudo"
+    state: present
+
+- name: Ensure SSH key is present for {{ pve_ansible_user_ssh }}
+  ansible.posix.authorized_key:
+    user: "{{ pve_ansible_user_ssh }}"
+    state: present
+    key: "{{ lookup('file', pve_ansible_ssh_public_key_file) }}"
+
+- name: Add to sudoers {{ pve_ansible_user_ssh }}
+  ansible.builtin.template:
+    src: "templates/sudoers.j2"
+    dest: "/etc/sudoers.d/{{ pve_ansible_user_ssh }}"
+    mode: "0440"
+    validate: "visudo -cf %s" # Ensure syntax validation before applying
+
+### Section 2: Configure Proxmox API User ###
+- name: Ensure Proxmox API group exists
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum group list | grep -q "{{ pve_ansible_group }}"; then
+        pveum groupadd {{ pve_ansible_group }} -comment 'Ansible Group';
+      fi
+    executable: /bin/bash
+  register: ansible_group_add_result
+  changed_when: ansible_group_add_result.stdout != "" # Only mark as changed if the group was created
+  failed_when: ansible_group_add_result.rc != 0
+
+- name: Ensure Proxmox API user exists
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum user list | grep -q "{{ pve_ansible_user_api_realm }}"; then
+        pveum useradd {{ pve_ansible_user_api_realm }} -comment 'API user for VM deployment';
+      fi
+    executable: /bin/bash
+  register: ansible_user_add_result
+  changed_when: ansible_user_add_result.stdout != "" # Only mark as changed if the user was created
+  failed_when: ansible_user_add_result.rc != 0
+
+- name: Add Proxmox API user to group
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum user list {{ pve_ansible_user_api_realm }} | grep -q "{{ pve_ansible_group }}"; then
+        pveum usermod {{ pve_ansible_user_api_realm }} -group {{ pve_ansible_group }};
+      fi
+    executable: /bin/bash
+  register: ansible_user_mod_result
+  changed_when: ansible_user_mod_result.stdout != "" # Only mark as changed if the user was modified
+  failed_when: ansible_user_mod_result.rc != 0
+
+- name: Assign group to role
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum acl list | grep -q "{{ pve_ansible_group }}"; then
+        pveum aclmod / -group {{ pve_ansible_group }} -role {{ pve_admin_group_role }};
+      fi
+    executable: /bin/bash
+  register: ansible_acl_mod_result
+  changed_when: ansible_acl_mod_result.stdout != "" # Only mark as changed if the acl was modified
+  failed_when: ansible_acl_mod_result.rc != 0
+
+### Section 3: Generate API Key ###
+- name: Check if token exists for the Proxmox API user
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      pveum user token list {{ pve_ansible_user_api_realm }} --output-format json | jq -r '.[] | select(.id=="{{ pve_ansible_token_id }}") | .id'
+    executable: /bin/bash
+  register: token_check_result
+  changed_when: false
+  failed_when: false
+
+- name: Delete existing token for the Proxmox API user if it exists
+  ansible.builtin.command:
+    cmd: "pveum user token delete {{ pve_ansible_user_api_realm }} {{ pve_ansible_token_id }}"
+  when: token_check_result.stdout != ""
+  register: token_delete_result
+  changed_when: "'deleted' in token_delete_result.stderr or token_check_result.stdout != ''"
+
+- name: Generate API key for the Proxmox API user
+  ansible.builtin.command:
+    cmd: "pveum user token add {{ pve_ansible_user_api_realm }} {{ pve_ansible_token_id }} -privsep 0 --comment 'API token for ansible user'"
+  register: api_token_output
+  changed_when: "'Token already exists' not in api_token_output.stdout"
+  failed_when: "'error' in api_token_output.stdout"
+
+- name: Save API token value to localhost file
+  ansible.builtin.copy:
+    content: "{{ api_token_output.stdout | regex_findall('[a-f0-9\\-]{36}') | first }}"
+    dest: "/home/homelab/.ansible/{{ inventory_hostname }}-{{ pve_ansible_token_id }}"
+    mode: "0644"
+    force: true # Ensures the file is always updated
+  delegate_to: localhost
+  when: api_token_output.stdout is not none and
+    (api_token_output.stdout | regex_findall('[a-f0-9\\-]{36}') | length > 0)

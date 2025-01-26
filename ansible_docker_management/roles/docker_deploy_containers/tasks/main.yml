@@ -1,0 +1,17 @@
+---
+# roles/docker_deploy_containers/tasks/main.yml
+- name: Find docker-compose files for {{ inventory_hostname }}
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/host_vars/{{ inventory_hostname }}/"
+    file_type: file
+    patterns: "docker-compose.yml"
+    recurse: true
+  register: docker_compose_files
+  delegate_to: localhost
+
+- name: Loop through each docker-compose in host_vars and deploy
+  ansible.builtin.include_tasks: deploy_compose.yml
+  loop: "{{ docker_compose_files.files }}"
+  loop_control:
+    loop_var: compose_file
+  when: docker_compose_files.files | length > 0

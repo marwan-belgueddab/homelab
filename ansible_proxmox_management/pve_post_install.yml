@@ -1,0 +1,11 @@
+---
+- name: Proxmox post install configuration
+  hosts: pve
+  become: true
+  vars:
+    ansible_user: "{{ pve_root_user }}"
+    ansible_password: "{{ pve_root_password }}"
+  roles:
+    - pve_post_install
+    - pve_update_firewall
+    - pve_add_users

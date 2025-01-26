@@ -1,0 +1,16 @@
+---
+- name: Fetch secret from Vault
+  community.hashi_vault.vault_kv2_get:
+    url: "http://127.0.0.1:8200"
+    path: proxmox
+    engine_mount_point: ansible
+    token_path: "/home/homelab"
+  register: proxmox_vault
+  delegate_to: localhost
+
+- name: Set secret value to variable
+  ansible.builtin.set_fact:
+    _pve_admin_user_realm: "{{ proxmox_vault.data.data.pve_admin_user_realm }}"
+    _pve_admin_password: "{{ proxmox_vault.data.data.pve_admin_password }}"
+    pve_authentik_client_secret: "{{ proxmox_vault.data.data.pve_authentik_client_secret }}"
+    pve_authentik_client_id: "{{ proxmox_vault.data.data.pve_authentik_client_id }}"

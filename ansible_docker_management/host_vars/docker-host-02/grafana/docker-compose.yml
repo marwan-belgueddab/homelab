@@ -1,0 +1,29 @@
+services:
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss:latest
+    restart: unless-stopped
+    volumes:
+      - grafana:/var/lib/grafana
+      # - grafana.ini:/etc/grafana/grafana.ini
+
+    environment:
+      GF_SERVER_ROOT_URL: https://grafana.example.com
+
+    user: 2000:2000
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.2.12
+
+networks:
+  service_restricted_vlan:
+    external: true
+
+volumes:
+  grafana:
+    name: grafana
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/docker-data/grafana

@@ -1,0 +1,6 @@
+---
+- name: Deploy Docker containers
+  hosts: docker-hosts
+  # become: true
+  roles:
+    - role: docker_deploy_containers

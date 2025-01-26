@@ -1,0 +1,17 @@
+---
+
+- name: Create Docker networks
+  community.docker.docker_network:
+    name: "{{ network.name }}"
+    driver: "{{ network.driver }}"
+    enable_ipv6: false
+    ipam_config:
+      - subnet: "{{ network.subnet | default(omit) }}"
+        gateway: "{{ network.gateway | default(omit) }}"
+        iprange: "{{ network.iprange | default(omit) }}"
+    driver_options: "{{ network.options | default({}) }}"
+    state: present
+  loop: "{{ docker_networks }}"
+  loop_control:
+    loop_var: network
+  register: docker_network_result

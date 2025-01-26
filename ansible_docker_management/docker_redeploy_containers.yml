@@ -1,0 +1,13 @@
+---
+- name: Deploy or Redeploy a containers
+  hosts: docker-hosts
+  become: true
+  vars:
+    container_names:
+      - homepage
+      - authentik
+      - traefik
+      - it-tools
+
+  roles:
+    - docker_update_containers

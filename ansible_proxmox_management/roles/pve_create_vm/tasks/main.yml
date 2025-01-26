@@ -1,0 +1,15 @@
+---
+- name: Fetch form Vault
+  ansible.builtin.import_tasks: fetch_from_vault.yml
+
+- name: Upload Cloud Init File to Proxmox snippet
+  ansible.builtin.import_tasks: upload_cloud_init_file.yml
+
+- name: Create Virtual machine based on playbook variables
+  ansible.builtin.import_tasks: create_vm.yml
+
+- name: Modify disk size following cloud init install
+  ansible.builtin.import_tasks: update_disk_size.yml
+
+- name: Start virtual machine
+  ansible.builtin.import_tasks: start_vm.yml

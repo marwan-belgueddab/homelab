@@ -1,0 +1,17 @@
+http:
+  routers:
+    homepage:
+      entryPoints:
+        - websecure
+      rule: "Host(`homepage.example.com`)"
+      service: homepage
+      middlewares:
+        # - "forwardAuth-authentik"
+        - "default-headers"
+
+  services:
+    homepage:
+      loadBalancer:
+        servers:
+          - url: http://10.0.4.10:3000/
+        passHostHeader: true

@@ -1,0 +1,11 @@
+---
+- name: Sync docker containers data
+  hosts: docker-hosts-test
+  # hosts: docker-hosts
+  become: true
+  vars:
+    container_names:
+      - traefik
+      - homepage
+  roles:
+    - docker_sync_files

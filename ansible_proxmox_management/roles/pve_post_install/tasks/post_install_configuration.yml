@@ -1,0 +1,46 @@
+---
+- name: Remove Proxmox Enterprise subscription repository
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  loop:
+    - pve-enterprise.list.dpkg-dist
+    - pve-enterprise.list
+    - ceph.list
+
+- name: Add Proxmox PVE No-Subscription repository
+  ansible.builtin.apt_repository:
+    repo: deb http://download.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-no-subscription
+    state: present
+    update_cache: true
+    filename: pve-no-subscription
+
+- name: Perform a full system upgrade (dist-upgrade)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+    upgrade: dist
+
+# CONSIDER BUYING A PROXMOX LICENCE #
+- name: Remove Proxmox No-Subscription subscription warning prompt - Consider buying a proxmox licence
+  ansible.builtin.replace:
+    path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+    regexp: "data\\.status\\.toLowerCase\\(\\) !== 'active'"
+    replace: "false"
+    backup: true
+
+- name: Install packages for Proxmox API access and management
+  ansible.builtin.package:
+    name:
+      - python3-proxmoxer
+      - sudo
+      - fail2ban
+      - python3-hvac
+    state: present
+
+- name: Enable 'snippets' content type on Proxmox local storage
+  ansible.builtin.command:
+    cmd: "pvesm set local --content iso,backup,vztmpl,snippets"
+  register: pvesm_output
+  changed_when: "'snippets' not in pvesm_output.stdout"
+  failed_when: "'error' in pvesm_output.stderr"

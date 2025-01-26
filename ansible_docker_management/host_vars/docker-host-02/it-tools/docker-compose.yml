@@ -1,0 +1,14 @@
+---
+services:
+  it-tools:
+    container_name: it-tools
+    restart: unless-stopped
+    image: ghcr.io/corentinth/it-tools:latest
+    # user: 1000:1000
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.2.14
+
+networks:
+  service_restricted_vlan:
+    external: true

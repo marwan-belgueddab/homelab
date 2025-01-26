@@ -1,0 +1,47 @@
+- Productivity:
+    - Github:
+        - icon: github.png
+          abbr: GH
+          href: https://github.com/
+    - Outlook:
+        - icon: microsoft-outlook.png
+          href: https://outlook.office.com
+
+- Social:
+    - Reddit:
+        - icon: reddit.png
+          href: https://reddit.com/
+          description: The front page of the internet
+
+- Entertainment:
+    - YouTube:
+        - icon: youtube.png
+          abbr: YT
+          href: https://youtube.com/
+
+- Self Hosting:
+    - Self Hosted:
+        - icon: selfh-st.png
+          href: https://selfh.st
+
+    - Awsome Self Hosted:
+        - icon: https://awesome-selfhosted.net/_static/logo.svg
+          abbr: ASH
+          href: https://awesome-selfhosted.net/
+
+- AI tools:
+    - Gemini:
+        - icon: google-gemini
+          href: https://gemini.google.com
+
+    - Google Ai Studio:
+        - icon: google-gemini
+          href: https://aistudio.google.com
+
+    - Notebook LM:
+        - icon: google-gemini
+          href: https://notebooklm.google.com
+
+    - Chat GPT:
+        - icon: chatgpt
+          href: https://chatgpt.com

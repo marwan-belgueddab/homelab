@@ -1,0 +1,52 @@
+---
+# tasks/deploy_compose.yml
+- name: Set facts for current compose file
+  ansible.builtin.set_fact:
+    container_dir_path: "{{ compose_file.path | dirname }}"
+    docker_compose_file: "{{ compose_file.path }}"
+    container_dir_name: "{{ compose_file.path | dirname | basename }}"
+  delegate_to: localhost
+
+- name: Fetch environment variable values from Vault for {{ container_dir_name }}
+  community.hashi_vault.vault_kv2_get:
+    url: "http://127.0.0.1:8200"
+    path: "{{ container_dir_name }}"
+    engine_mount_point: docker
+    token_path: "/home/homelab"
+  register: vault_secrets
+  delegate_to: localhost
+  ignore_errors: true
+
+- name: Convert Vault output to environment file format
+  ansible.builtin.copy:
+    content: |
+      {% for key, value in vault_secrets.data.data.items() %}
+      {{ key }}={{ value }}
+      {% endfor %}
+    dest: "/tmp/{{ container_dir_name }}_env_file.env"
+    mode: "0644"
+  when: vault_secrets.secret is defined
+
+- name: Remove existing stack to avoid conflicts for {{ container_dir_name }}
+  community.docker.docker_compose_v2:
+    definition: "{{ lookup('file', docker_compose_file) | from_yaml }}"
+    project_name: "{{ container_dir_name }}"
+    pull: missing
+    state: absent
+  become: true
+
+- name: Deploy Docker compose for {{ container_dir_name }}
+  community.docker.docker_compose_v2:
+    definition: "{{ lookup('file', docker_compose_file) | from_yaml }}"
+    project_name: "{{ container_dir_name }}"
+    env_files: "{{ '/tmp/' + container_dir_name + '_env_file.env' if vault_secrets.secret is defined else omit }}"
+    pull: missing
+    state: present
+  become: true
+
+- name: Remove temporary environment file
+  ansible.builtin.file:
+    path: "/tmp/{{ container_dir_name }}_env_file.env"
+    state: absent
+  become: true
+  when: vault_secrets.secret is defined

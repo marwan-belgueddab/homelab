@@ -1,0 +1,35 @@
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "live-restore": true,
+  "default-runtime": "runc",
+  "userns-remap": "default",
+  "data-root": "/var/lib/docker",
+  "storage-driver": "overlay2",
+  "storage-opts": [
+      "overlay2.override_kernel_check=1"
+  ],
+    "oom-score-adjust": -500,
+    "disable-legacy-registry": true,
+    "max-concurrent-uploads": 5,
+    "max-concurrent-downloads": 5,
+    "registry-mirrors": [
+        "https://ghcr.io"
+    ],
+    "insecure-registries": [],
+    "debug": false,
+    "tls": false,
+    "tlsverify": false,
+    "tlskey": "/var/lib/docker/key.pem",
+    "tlscert": "/var/lib/docker/cert.pem",
+    "tlscacert": "/var/lib/docker/ca.pem",
+    "default-address-pools": [
+      {
+        "base": "10.100.0.0/16",
+        "size": 16
+      }
+    ]
+}

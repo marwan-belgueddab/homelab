@@ -1,0 +1,79 @@
+---
+# roles/docker_deploy_containers/tasks/deploy_compose.yml
+- name: Set facts for current compose file
+  ansible.builtin.set_fact:
+    container_dir_path: "{{ compose_file.path | dirname }}"
+    docker_compose_file: "{{ compose_file.path }}"
+    container_dir_name: "{{ compose_file.path | dirname | basename }}"
+    data_src_dir: "{{ playbook_dir }}/files/containers/{{ compose_file.path | dirname | basename }}"
+    volume_dest_dir: "/opt/docker-data/{{ compose_file.path | dirname | basename }}"
+  delegate_to: localhost
+
+- name: Check if data source directory exists for {{ container_dir_name }}
+  ansible.builtin.stat:
+    path: "{{ data_src_dir }}"
+  register: data_src_dir_stat
+  delegate_to: localhost
+  when: data_src_dir != ""
+
+- name: Register existing containers  for {{ container_dir_name }}
+  ansible.builtin.command: docker container inspect "{{ container_dir_name}}"
+  register: container_inspect
+  ignore_errors: true
+  changed_when: false
+  become: true
+
+- name: Fetch environment variable values from Vault for {{ container_dir_name }}
+  community.hashi_vault.vault_kv2_get:
+    url: "http://127.0.0.1:8200"
+    path: "{{ container_dir_name }}"
+    engine_mount_point: docker
+    token_path: "/home/homelab"
+  register: vault_secrets
+  delegate_to: localhost
+  ignore_errors: true
+  when: container_inspect.rc != 0 or container_inspect.rc is undefined
+
+- name: Convert Vault output to environment file format
+  ansible.builtin.copy:
+    content: |
+      {% for key, value in vault_secrets.data.data.items() %}
+      {{ key }}={{ value }}
+      {% endfor %}
+    dest: "/tmp/{{ container_dir_name }}_env_file.env"
+    mode: "0644"
+  when: vault_secrets.secret is defined and container_inspect.rc != 0 or container_inspect.rc is undefined
+
+- name: Create container volume directory  for {{ container_dir_name }}
+  ansible.builtin.file:
+    path: "{{ volume_dest_dir }}"
+    state: directory
+    mode: "0755"
+    owner: docker-non-root-user
+    group: docker-non-root-group
+  become: true
+  when: container_inspect.rc != 0 or container_inspect.rc is undefined
+
+- name: Copy container data directory  for {{ container_dir_name }}
+  ansible.posix.synchronize:
+    src: "{{ data_src_dir }}/"
+    dest: "{{ volume_dest_dir }}/"
+    recursive: true
+    owner: true
+  become: true
+  when: data_src_dir_stat.stat.exists and (container_inspect.rc != 0 or container_inspect.rc is undefined)
+
+- name: Deploy Docker containers for {{ container_dir_name }}
+  community.docker.docker_compose_v2:
+    definition: "{{ lookup('file', docker_compose_file) | from_yaml }}"
+    project_name: "{{ container_dir_name }}"
+    state: present
+  become: true
+  when: container_inspect.rc != 0 or container_inspect.rc is undefined
+
+- name: Remove temporary environment file
+  ansible.builtin.file:
+    path: "/tmp/{{ container_dir_name }}_env_file.env"
+    state: absent
+  become: true
+  when: vault_secrets.secret is defined

@@ -1,0 +1,21 @@
+---
+- name: Update existing disk
+  community.general.proxmox_disk:
+    # ansible proxmox api variables
+    api_user: "{{ pve_ansible_user_api_realm }}"
+    api_token_id: "{{ pve_ansible_token_id }}"
+    api_token_secret: "{{ lookup('file', api_token_file_path) }}"
+    api_host: "{{ pve_primary_node }}"
+
+    vmid: "{{ item.value.vmid }}"
+    disk: "{{ item.value.disk }}"
+    size: "{{ item.value.size }}"
+
+    state: "resized"
+    timeout: 60
+  loop: "{{ vm_config | dict2items }}"
+  loop_control:
+    pause: 5
+    label: "{{ item.key }}"
+  when: created_pve_vm is succeeded and inventory_hostname == pve_primary_node and item.value.state == "new"
+  delegate_to: "{{ pve_primary_node }}"

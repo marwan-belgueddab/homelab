@@ -1,0 +1,15 @@
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /letsencrypt/live/example.com/fullchain.pem
+        keyFile: /letsencrypt/live/example.com/privkey.pem
+  certificates:
+    - certFile: /letsencrypt/live/example.com/fullchain.pem
+      keyFile: /letsencrypt/live/example.com/privkey.pem
+      stores:
+        - default
+  options:
+    modern:
+      minVersion: VersionTLS13
+      curvePreferences: ["X25519", "CurveP256", "CurveP384"]

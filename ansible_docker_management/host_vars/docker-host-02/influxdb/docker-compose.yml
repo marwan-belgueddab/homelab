@@ -1,0 +1,39 @@
+services:
+  influxdb2:
+    image: influxdb:2
+    container_name: influxdb
+    restart: unless-stopped
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+      - DOCKER_INFLUXDB_INIT_USERNAME
+      - DOCKER_INFLUXDB_INIT_PASSWORD
+      - DOCKER_INFLUXDB_INIT_ORG
+      - DOCKER_INFLUXDB_INIT_BUCKET
+
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    user: 1000:1000
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.2.13
+
+networks:
+  service_restricted_vlan:
+    external: true
+volumes:
+  influxdb-data:
+    name: influxdb-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/docker-data/influxdb/data
+  influxdb-config:
+    name: influxdb-config
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /opt/docker-data/influxdb/config

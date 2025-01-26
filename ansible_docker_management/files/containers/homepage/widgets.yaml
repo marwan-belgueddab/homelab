@@ -1,0 +1,22 @@
+---
+# For configuration options and examples, please see:
+# https://github.com/benphelps/homepage/wiki/Information-Widgets
+
+- resources:
+    cpu: true
+    memory: true
+- resources:
+    expanded: true
+    disk:
+      - /
+
+- search:
+    provider: google
+    target: _blank
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false

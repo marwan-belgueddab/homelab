@@ -1,0 +1,53 @@
+########################
+## PROXMOX MANAGEMENT ##
+########################
+
+# default users
+ansible_user: "{{ pve_ansible_user_ssh }}"
+ansible_ssh_private_key_file: "{{ pve_ansible_ssh_private_key_file }}"
+
+# Define Ansible user and API Token variable
+pve_ansible_user_api: "{{ pve_ansible_user }}_api" # the pve_ansible_user variable is set in the vault, you can define it in this file if you want
+pve_ansible_user_ssh: "{{ pve_ansible_user }}_ssh"
+pve_ansible_user_api_realm: "{{ pve_ansible_user_api }}@pam"
+pve_ansible_token_id: "{{ pve_ansible_user_api }}_token"
+
+# Proxmox admin user information
+
+# Groups for Ansible User and Admin User
+pve_ansible_group: "pve_ansible_group"
+pve_admin_group: "pve_admin_group"
+pve_admin_group_role: "Administrator"
+
+# API Token
+pve_ansible_token_privilege: "Administrator"
+
+snippets_storage: local
+snippets_path: "/var/lib/vz/snippets/"
+image_storage: local
+vm_storage: local-lvm
+pve_image_path: "/var/lib/vz/images/0"
+
+
+
+########################
+##   Cluster Config   ##
+########################
+pve_cluster_name: "my_proxmox_cluster"
+pve_cluster_join_timeout: 60
+
+# Proxmox network configuration (adjust for your setup)
+pve_network_interface: "vmbr1"
+pve_compute_bridge: "vmbr1"
+
+# Primary node in the cluster
+pve_primary_node: pve01
+
+# SSH-related settings
+pve_cluster_conf: /etc/pve/corosync.conf
+pve_ssh_ciphers: "aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com"
+
+###################
+## VIRTUAL MACHINES ##
+###################
+vm_config: "{{ lookup('fileglob', playbook_dir + '/group_vars/pve/vms/*.yml', errors='ignore') | map('from_yaml') | list | combine }}"

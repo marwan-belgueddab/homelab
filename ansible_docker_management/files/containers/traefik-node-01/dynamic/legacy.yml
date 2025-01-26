@@ -1,0 +1,106 @@
+http:
+  routers:
+    plex:
+      entryPoints:
+        - websecure
+      rule: "Host(`plex.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: plex
+
+    jellyfin:
+      entryPoints:
+        - websecure
+      rule: "Host(`jellyfin.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: jellyfin
+
+    movies:
+      entryPoints:
+        - websecure
+      rule: "Host(`movies.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: movies
+
+    series:
+      entryPoints:
+        - websecure
+      rule: "Host(`series.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: series
+
+    readarr:
+      entryPoints:
+        - websecure
+      rule: "Host(`readarr.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: readarr
+
+    bazarr:
+      entryPoints:
+        - websecure
+      rule: "Host(`bazarr.example.com`)"
+      middlewares:
+        - "default-headers"
+      tls: {}
+      service: bazarr
+
+    nextcloud:
+      entryPoints:
+        - websecure
+      rule: "Host(`nextcloud.example.com`)"
+      middlewares:
+        - nextcloud-chain
+        - "default-headers"
+      tls: {}
+      service: nextcloud
+
+  services:
+    plex:
+      loadBalancer:
+        servers:
+          - url: "https://10.0.0.60:32400"
+        passHostHeader: true
+
+    jellyfin:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:8096"
+        passHostHeader: true
+
+    movies:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:7878"
+        passHostHeader: true
+
+    series:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:8989"
+        passHostHeader: true
+    readarr:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:8787"
+        passHostHeader: true
+    bazarr:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:6767"
+        passHostHeader: true
+
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://10.0.0.60:11000"
+        passHostHeader: true

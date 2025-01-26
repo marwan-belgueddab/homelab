@@ -1,0 +1,15 @@
+# ENSURE TO MODIFY THE VALUES TO YOUR VARIABLES AND YOUR LIKING
+# Add here values that you want secret and encrypt it
+
+
+###################
+## VM MANAGEMENT ##
+###################
+
+ansible_user: "{{ vm_ansible_user }}"
+ansible_ssh_private_key_file: "{{ vm_ansible_ssh_private_key_file }}"
+nfs_server: "10.0.0.50"
+nfs_share_path: "/volume1/letsencrypt"
+nfs_share_mount_point: "/mnt/nfs/letsencrypt"
+nfs_docker_backup_path: "/volume1/docker-backup"
+nfs_docker_backup_mount_point: "/mnt/nfs/docker-backup"

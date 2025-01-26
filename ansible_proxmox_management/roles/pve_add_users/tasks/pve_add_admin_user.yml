@@ -1,0 +1,52 @@
+---
+- name: Ensure the Proxmox admin group exists
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum group list | grep -q "{{ pve_admin_group }}"; then
+        pveum groupadd {{ pve_admin_group }} -comment 'Admin User Group';
+      fi
+    executable: /bin/bash
+  register: admin_group_add_result
+  changed_when: admin_group_add_result.stdout != ""
+  failed_when: admin_group_add_result.rc != 0
+
+
+- name: Ensure the Proxmox admin user exists
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum user list | grep -q "{{ _pve_admin_user_realm }}"; then
+        pveum useradd {{ _pve_admin_user_realm }} --password {{ _pve_admin_password }} -comment 'Admin User';
+      fi
+    executable: /bin/bash
+  register: admin_user_add_result
+  changed_when: admin_user_add_result.stdout != ""
+  failed_when: admin_user_add_result.rc != 0
+
+
+- name: Ensure the admin user is in the admin group
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum user list {{ _pve_admin_user_realm }} | grep -q "{{ pve_admin_group }}"; then
+        pveum usermod {{ _pve_admin_user_realm }} -group {{ pve_admin_group }};
+      fi
+    executable: /bin/bash
+  register: admin_usermod_result
+  changed_when: admin_usermod_result.stdout != ""
+  failed_when: admin_usermod_result.rc != 0
+
+
+- name: Ensure the admin group is assigned to admin role
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      if ! pveum acl list | grep -q "{{ pve_admin_group }}"; then
+        pveum aclmod / -group {{ pve_admin_group }} -role {{ pve_admin_group_role }};
+      fi
+    executable: /bin/bash
+  register: admin_aclmod_result
+  changed_when: admin_aclmod_result.stdout != ""
+  failed_when: admin_aclmod_result.rc != 0
+

@@ -1,0 +1,51 @@
+---
+- name: Check SDN zone status
+  ansible.builtin.shell: pvesh get /cluster/sdn/zones/vlan{{ item.id }}
+  register: zone_check_result
+  changed_when: false
+  failed_when: false
+  loop: "{{ vlan_definitions }}"
+  loop_control:
+    label: "Checking SDN zone for VLAN {{ item.id }}"
+
+- name: Create SDN zone if it doesn't exist
+  ansible.builtin.shell: |
+    pvesh create /cluster/sdn/zones \
+      --type vlan \
+      --zone vlan{{ item.item.id }} \
+      --bridge {{ pve_compute_bridge }}
+  when: item.rc != 0 and inventory_hostname == pve_primary_node 
+  loop: "{{ zone_check_result.results }}"
+  loop_control:
+    label: "Creating SDN zone for VLAN {{ item.item.id }}" 
+  register: sdn_zone_result
+  changed_when: sdn_zone_result.rc == 0
+
+- name: Check VNet status
+  ansible.builtin.shell: pvesh get /cluster/sdn/vnets/vnet{{ item.id }}
+  register: vnet_check_result
+  changed_when: false
+  failed_when: false
+  loop: "{{ vlan_definitions }}"
+  loop_control:
+    label: "Checking VNet for VLAN {{ item.id }}"
+
+- name: Create VNet if it doesn't exist
+  ansible.builtin.shell: |
+    pvesh create /cluster/sdn/vnets \
+      --vnet vnet{{ item.item.id }} \
+      --alias "{{ item.item.name }} VLAN" \
+      --zone vlan{{ item.item.id }} \
+      --tag {{ item.item.id }}
+  when: item.rc != 0 and inventory_hostname == pve_primary_node 
+  loop: "{{ vnet_check_result.results }}"
+  loop_control:
+    label: "Creating SDN zone for VLAN {{ item.item.id }}" 
+  register: sdn_vnet_result
+  changed_when: sdn_vnet_result.rc == 0
+
+- name: Reload SDN configuration
+  ansible.builtin.command:
+    cmd: pvesh set /cluster/sdn
+  changed_when: false
+  when: inventory_hostname == pve_primary_node
