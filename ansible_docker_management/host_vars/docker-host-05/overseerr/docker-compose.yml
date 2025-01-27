@@ -1,0 +1,18 @@
+services:
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=America/Toronto
+    user: 2000:2000
+    volumes:
+      - /opt/docker-data/overseerr/config:/app/config
+    restart: unless-stopped
+    networks:
+      service_external_vlan:
+        ipv4_address: 10.0.13.51
+
+networks:
+  service_external_vlan:
+    external: true

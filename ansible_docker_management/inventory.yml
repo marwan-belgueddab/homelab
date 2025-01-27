@@ -1,19 +1,19 @@
 docker-hosts:
   hosts:
     docker-host-01:
-      ansible_host: 10.0.0.11
+      ansible_host: 10.0.11.11
     docker-host-02:
-      ansible_host: 10.0.0.12
+      ansible_host: 10.0.11.12
     docker-host-03:
-      ansible_host: 10.0.0.13
+      ansible_host: 10.0.11.13
     docker-host-04:
-      ansible_host: 10.0.0.14
+      ansible_host: 10.0.11.14
     docker-host-05:
-      ansible_host: 10.0.0.15
+      ansible_host: 10.0.11.15
 
 docker-hosts-test:
   hosts:
     docker-host-test-01:
-      ansible_host: 10.0.0.199
+      ansible_host: 10.0.11.199
     docker-host-test-02:
-      ansible_host: 10.0.0.200
+      ansible_host: 10.0.11.200

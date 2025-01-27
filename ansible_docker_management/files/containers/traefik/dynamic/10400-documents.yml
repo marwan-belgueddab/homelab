@@ -13,5 +13,5 @@ http:
     homepage:
       loadBalancer:
         servers:
-          - url: http://10.0.4.10:3000/
+          - url: http://10.0.12.40:3000/
         passHostHeader: true

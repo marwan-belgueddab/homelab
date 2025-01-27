@@ -7,7 +7,7 @@ services:
       - no-new-privileges:true
     networks:
       service_restricted_vlan:
-        ipv4_address: 10.0.1.10
+        ipv4_address: 10.0.12.10
       proxy:
 
     volumes:

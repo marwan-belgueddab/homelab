@@ -55,22 +55,22 @@ http:
     proxmox:
       loadBalancer:
         servers:
-          - url: https://10.0.0.10:8006/
+          - url: https://10.0.10.11:8006/
 
     nas1:
       loadBalancer:
         servers:
-          - url: "https://10.0.0.20:5001"
+          - url: https://10.0.10.20:5001
         passHostHeader: true
 
     nas2:
       loadBalancer:
         servers:
-          - url: "https://10.0.0.21:5001"
+          - url: https://10.0.10.21:5001
         passHostHeader: true
 
     homeassistant:
       loadBalancer:
         servers:
-          - url: "http://10.0.0.30:8123"
+          - url: http://10.0.14.10:8123
         passHostHeader: true

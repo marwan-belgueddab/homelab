@@ -33,7 +33,7 @@ pve_image_path: "/var/lib/vz/images/0"
 ########################
 ##   Cluster Config   ##
 ########################
-pve_cluster_name: "my_proxmox_cluster"
+pve_cluster_name: "my-proxmox-cluster"
 pve_cluster_join_timeout: 60
 
 # Proxmox network configuration (adjust for your setup)
@@ -41,7 +41,7 @@ pve_network_interface: "vmbr1"
 pve_compute_bridge: "vmbr1"
 
 # Primary node in the cluster
-pve_primary_node: pve01
+pve_primary_node: pve1
 
 # SSH-related settings
 pve_cluster_conf: /etc/pve/corosync.conf

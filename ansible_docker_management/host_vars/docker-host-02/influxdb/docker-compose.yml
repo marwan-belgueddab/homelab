@@ -17,7 +17,7 @@ services:
     user: 1000:1000
     networks:
       service_restricted_vlan:
-        ipv4_address: 10.0.2.13
+        ipv4_address: 10.0.12.13
 
 networks:
   service_restricted_vlan:

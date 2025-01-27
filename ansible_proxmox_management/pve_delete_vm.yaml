@@ -1,10 +1,8 @@
 - name: Delete virtual machines hosted on proxmox
-  hosts: pve01
+  hosts: pve1 # Group of hosts. I put the primary_node for clusters
   roles:
     - pve_delete_vm
   vars:
-    node: "pve01" # Ensure this matches your actual node name
+    node: "pve1" # Ensure this matches your actual node name
     vmids:
-      - 1001
-      - 100
-      - 9999
+      - 1500

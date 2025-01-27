@@ -1,0 +1,15 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    volumes:
+      - /opt/docker-data/homepage:/app/config
+    restart: unless-stopped
+    user: 2000:2000
+    networks:
+      service_restricted_vlan:
+        ipv4_address: 10.0.12.21
+
+networks:
+  service_restricted_vlan:
+    external: true

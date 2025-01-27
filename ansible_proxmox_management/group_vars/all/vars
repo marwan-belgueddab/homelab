@@ -3,11 +3,16 @@
 ###########################
 timezone: "America/Toronto"
 locale: "en_US.UTF-8"
+
 # DNS settings
 dns_servers:
   - "10.53.53.53"
   - "1.1.1.1"
+
+# The domain value is used when creating virtual machines for the hostname and can be used for any other places needed for that
 domain: "example.com"
+
+# For DoT and DoH, not used yet
 dns_over_tls_servers:
   - "tls://10.53.53.53"
   - "tls://1.1.1.1"
@@ -15,24 +20,41 @@ dns_over_https_servers:
   - "https://dns1.{{ domain }}"
   - "https://dns2.{{ domain }}"
 
-# VLAN Definitions
-gateway_vlan: "192.168.0.0/24" # Your DMZ/VLAN1/Whatever you want
-management_vlan: "10.0.1.0/24" # proxmox hosts, nas, ansible control node
-compute_vlan: "10.0.2.0/24" # virtual machine, docker host etc
-IOT_vlan: "10.0.199.0/24" # for IOT virtual machines
+# VLAN Definitions - This is used when creating the SDN VLANs on Proxmox
+gateway_vlan: "10.0.0.0/24"
+management_vlan: "10.0.10.0/24" # proxmox host, nas, ansible control node
+compute_vlan: "10.0.11.0/24" # virtual machine, docker host etc
+service_restricted_vlan: "10.0.12.0/24" # Services with no access to internet at all
+service_external_vlan: "10.0.13.0/24" # Services with internet access
+home_assistant_vlan: "10.0.14.0/28" # Main interface for Home Assistant
+trusted_vlan: "10.0.15.0/24" # Laptop, PC, Phone
+multimedia_vlan: "10.0.16.0/24" # TV, Plex
+iot_vlan: "10.0.17.0/24" # IoT devices without internet
 
-# VLAN IDs
+# VLAN IDs - Used for SDN Vlans
 vlan_definitions:
-  - id: 1
+  - id: 10
     name: management_vlan
-  - id: 2
+  - id: 11
     name: compute_vlan
-  - id: 199
-    name: IOT_vlan
+  - id: 12
+    name: service_restricted_vlan
+  - id: 13
+    name: service_external_vlan
+  - id: 14
+    name: home_assistant_vlan
+  - id: 15
+    name: trusted_vlan
+  - id: 16
+    name: multimedia_vlan
+  - id: 17
+    name: iot_vlan
 
+# Links for the virtual machine images
 debian_image_url: ""
 debian_image_name: ""
 ubuntu_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
 ubuntu_image_name: noble-server-cloudimg-amd64.qcow2
 
+# Variable for adding the Authentik Realm to Proxmox during the intial configuration
 authentik_issuer_url: https://auth.{{ domain }}/application/o/proxmox/

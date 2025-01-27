@@ -100,7 +100,7 @@
     content: "{{ api_token_output.stdout | regex_findall('[a-f0-9\\-]{36}') | first }}"
     dest: "/home/homelab/.ansible/{{ inventory_hostname }}-{{ pve_ansible_token_id }}"
     mode: "0644"
-    force: true # Ensures the file is always updated
+    force: true
   delegate_to: localhost
   when: api_token_output.stdout is not none and
     (api_token_output.stdout | regex_findall('[a-f0-9\\-]{36}') | length > 0)

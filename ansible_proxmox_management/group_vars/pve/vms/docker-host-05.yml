@@ -1,0 +1,45 @@
+vm_config:
+  docker-host-05:
+    vm_image_name: noble-server-cloudimg-amd64.qcow2
+    vm_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+  
+    # Compute
+    name: "docker-host-05"
+    vmid: "1005"
+    node: "pve3"
+    memory: 4096
+    cores: 4
+    tags: 
+      - ubuntu
+      - docker
+
+    # Networking
+    net:
+      net0: "virtio,bridge=vmbr1" # This is the main interface and it'll have an ip address attached to it as defined below
+      net1: "virtio,bridge=vnet12" # Other interface if needed. This is will most likely report to ens19 in the virtual machine
+      net2: "virtio,bridge=vnet13" # ens20
+      net3: "virtio,bridge=vnet16" # ens21
+    ipconfig:
+      # ipconfig0: "ip=dhcp"
+      ipconfig0: "ip=10.0.11.15/24,gw=10.0.11.1" # You can manually define the IP address for ipconfig0 = net0. Make sure the interface allow this vlan
+
+    # Cloud-init configuration
+    citype: "nocloud"
+    cicustom: "user=local:snippets/docker-host-05.yml"
+    cloud_init_template: "docker-host.j2"
+    cloud_init_template_name: "docker-host-05.yml"
+    # Storage
+    bootdisk: "scsi0"
+    disk: "scsi0"
+    size: "32G"
+    scsihw: "virtio-scsi-pci"
+    storage: "local-lvm"
+    scsi:
+      scsi0: "local-lvm:0,import-from=local:0/noble-server-cloudimg-amd64.qcow2,format=qcow2"
+    ide:
+      ide2: "local-lvm:cloudinit"
+
+    # Other VM Configuration
+    agent: "enabled=1"
+    onboot: true
+    state: new # Manually set to indicate that virtual machine already exists in the proxmox cluster/node and should not be created/stopped in some playbooks

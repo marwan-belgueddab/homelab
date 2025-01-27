@@ -114,7 +114,7 @@ This section details the variables categorized by your functional area, as defin
 
 *   **pve\_primary\_node** *(Optional)*:
     *   Description: Hostname or IP address of the primary Proxmox node in the cluster. This should match a hostname in your Ansible inventory.
-    *   Default: `"pve01"`
+    *   Default: `"pve1"`
     *   Example: `"proxmox-master"`
 
 *   **pve\_cluster\_conf** *(Optional)*:

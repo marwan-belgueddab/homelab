@@ -1,6 +1,6 @@
 ---
 - name: Set bridge interface name {{ pve_compute_bridge }}
-  set_fact:
+  ansible.builtin.set_fact:
     iface_name: {{ pve_compute_bridge }}
 
 - name: Get existing network interfaces (excluding loopback, existing bridges, and wireless devices)
@@ -10,21 +10,22 @@
 
 - name: Find a suitable interface (preferably DOWN)
   ansible.builtin.set_fact:
-    bridge_interface: "{{ (interfaces_with_state.stdout_lines | select('search', ' DOWN$') | map('split', ' ') | map(attribute=0) | list | first) | default((interfaces_with_state.stdout_lines | select('search', ' UP$') | map('split', ' ') | map(attribute=0) | list | first)) }}" #select down first and if none select up
+    # bridge_interface: "{{ (interfaces_with_state.stdout_lines | select('search', ' DOWN$') | map('split', ' ') | map(attribute=0) | list | first) | default((interfaces_with_state.stdout_lines | select('search', ' UP$') | map('split', ' ') | map(attribute=0) | list | first)) }}" # select down first and if none select up
+    bridge_interface: "{{ down_interface | default(up_interface) }}"
   when: interfaces_with_state.stdout_lines | length > 0
 
 - name: Fail if no suitable interface is found
   ansible.builtin.fail:
-    msg: "No suitable network interface found to create the bridge. Ensure an interface other than loopback, existing bridges and wireless interfaces is available."
+    msg: "No suitable network interface found to create the bridge. Ensure an interface other than loopback, existing bridges and wireless is available."
   when: bridge_interface is not defined
 
-- name: Check if bridge {{ iface_name }} already exists
+- name: Check if bridge already exists for {{ iface_name }}
   ansible.builtin.command: pvesh get /nodes/{{ inventory_hostname }}/network/{{ iface_name }}
   register: bridge_exists
   changed_when: false
   ignore_errors: true
 
-- name: Create bridge {{ iface_name }} using pvesh
+- name: Create bridge using pvesh for {{ iface_name }}
   ansible.builtin.shell: pvesh create /nodes/{{ inventory_hostname }}/network \
     --iface {{ iface_name }} \
     --type bridge \
@@ -36,7 +37,7 @@
   register: pvesh_result
   ignore_errors: true
 
-- name: display bridge configuration
+- name: Display bridge configuration
   ansible.builtin.command: pvesh set /nodes/{{ inventory_hostname }}/network/
   register: bridge_config
   become: true

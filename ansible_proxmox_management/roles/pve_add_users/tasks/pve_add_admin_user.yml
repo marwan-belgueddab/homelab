@@ -11,7 +11,6 @@
   changed_when: admin_group_add_result.stdout != ""
   failed_when: admin_group_add_result.rc != 0
 
-
 - name: Ensure the Proxmox admin user exists
   ansible.builtin.shell:
     cmd: |
@@ -23,7 +22,6 @@
   register: admin_user_add_result
   changed_when: admin_user_add_result.stdout != ""
   failed_when: admin_user_add_result.rc != 0
-
 
 - name: Ensure the admin user is in the admin group
   ansible.builtin.shell:
@@ -37,7 +35,6 @@
   changed_when: admin_usermod_result.stdout != ""
   failed_when: admin_usermod_result.rc != 0
 
-
 - name: Ensure the admin group is assigned to admin role
   ansible.builtin.shell:
     cmd: |
@@ -49,4 +46,3 @@
   register: admin_aclmod_result
   changed_when: admin_aclmod_result.stdout != ""
   failed_when: admin_aclmod_result.rc != 0
-

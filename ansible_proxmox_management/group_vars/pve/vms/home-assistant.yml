@@ -4,8 +4,8 @@ vm_config:
     vm_image_url: https://github.com/home-assistant/operating-system/releases/download/14.1/haos_ova-14.1.qcow2.xz
     # Compute
     name: "home-assistant"
-    vmid: "100"
-    node: "pve01"
+    vmid: "1006"
+    node: "pve3"
     memory: 4096
     cores: 4
     tags: 
@@ -14,12 +14,12 @@ vm_config:
       - iot
     # Networking
     net:
-      net0: "virtio,bridge=vnet50" # the main vlan interface
-      net1: "virtio,bridge=vnet51" # this interface can be connected to the same IOT/CCTV network so you need to play with firewall rules and keep the vlan totally closed
+      net0: "virtio,bridge=vnet14" # the main vlan interface
+      net1: "virtio,bridge=vnet17" # this interface can be connected to the same IOT/CCTV network so you need to play with firewall rules and keep the vlan totally closed
     ipconfig:
       # ipconfig0: "ip=dhcp"
-      ipconfig0: "ip=10.0.50.10/28,gw=10.0.50.1"
-      ipconfig1: "ip=10.0.51.10/16,gw=10.0.51.1" # for some reasons these values are not used
+      ipconfig0: "ip=10.0.14.10/28,gw=10.0.14.1" # for some reasons these values are not used and it'll default to DHCP
+      ipconfig1: "ip=10.0.17.10/16,gw=10.0.17.1" # for some reasons these values are not used and it'll default to DHCP
     # Storage
     bootdisk: "scsi0"
     disk: "scsi0"

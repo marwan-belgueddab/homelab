@@ -22,11 +22,11 @@ http:
     omada:
       loadBalancer:
         servers:
-          - url: "https://10.0.3.10:8043"
+          - url: https://10.0.12.10:8043
         passHostHeader: true
 
     portainer:
       loadBalancer:
         servers:
-          - url: https://10.0.0.13:9443/
+          - url: https://10.0.11.13:9443/
         passHostHeader: true

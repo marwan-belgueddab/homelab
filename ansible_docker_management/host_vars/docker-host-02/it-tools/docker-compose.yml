@@ -7,7 +7,7 @@ services:
     # user: 1000:1000
     networks:
       service_restricted_vlan:
-        ipv4_address: 10.0.2.14
+        ipv4_address: 10.0.12.14
 
 networks:
   service_restricted_vlan:

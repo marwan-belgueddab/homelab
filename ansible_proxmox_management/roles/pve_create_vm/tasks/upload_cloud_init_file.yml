@@ -8,9 +8,8 @@
   loop: "{{ vm_config | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  check_mode: false # Important for correct error handling
-  register: template_result # Register the result
-  # failed_when: template_result.failed # Fail if the task itself failed
+  check_mode: false
+  register: template_result
   when:
     - item.value.cloud_init_template is defined
     - item.value.cloud_init_template_name is defined

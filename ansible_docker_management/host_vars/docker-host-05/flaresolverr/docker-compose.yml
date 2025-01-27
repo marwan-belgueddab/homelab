@@ -1,0 +1,20 @@
+services:
+  flaresolverr:
+    # DockerHub mirror flaresolverr/flaresolverr:latest
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      #      - LOG_HTML=${LOG_HTML:-false}
+      #      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=America/Toronto
+
+    user: 1000:1000
+    restart: unless-stopped
+    networks:
+      service_external_vlan:
+        ipv4_address: 10.0.13.50
+
+networks:
+  service_external_vlan:
+    external: true

@@ -15,20 +15,35 @@ dns_over_https_servers:
   - "https://dns1.{{ domain }}"
   - "https://dns2.{{ domain }}"
 
-# VLAN Definitions
-gateway_vlan: "192.168.0.0/24" # Your DMZ/VLAN1/Whatever you want
-management_vlan: "10.0.1.0/24" # proxmox hosts, nas, ansible control node
-compute_vlan: "10.0.2.0/24" # virtual machine, docker host etc
-IOT_vlan: "10.0.199.0/24" # for IOT virtual machines
+# VLAN Definitions - This is used when creating the SDN VLANs on Proxmox
+gateway_vlan: "10.0.0.0/24"
+management_vlan: "10.0.10.0/24" # proxmox host, nas, ansible control node
+compute_vlan: "10.0.11.0/24" # virtual machine, docker host etc
+service_restricted_vlan: "10.0.12.0/24" # Services with no access to internet at all
+service_external_vlan: "10.0.13.0/24" # Services with internet access
+home_assistant_vlan: "10.0.14.0/28" # Main interface for Home Assistant
+trusted_vlan: "10.0.15.0/24" # Laptop, PC, Phone
+multimedia_vlan: "10.0.16.0/24" # TV, Plex
+iot_vlan: "10.0.17.0/24" # IoT devices without internet
 
-# VLAN IDs
+# VLAN IDs - Used for SDN Vlans
 vlan_definitions:
-  - id: 1
+  - id: 10
     name: management_vlan
-  - id: 2
+  - id: 11
     name: compute_vlan
-  - id: 199
-    name: IOT_vlan
+  - id: 12
+    name: service_restricted_vlan
+  - id: 13
+    name: service_external_vlan
+  - id: 14
+    name: home_assistant_vlan
+  - id: 15
+    name: trusted_vlan
+  - id: 16
+    name: multimedia_vlan
+  - id: 17
+    name: iot_vlan
 
 ###################
 ## VM MANAGEMENT ##
@@ -36,7 +51,7 @@ vlan_definitions:
 
 ansible_user: "{{ vm_ansible_user }}" # As defined in the ansible_proxmox_management playbooks, or manualy if you have already manually created a user for ansible to use
 ansible_ssh_private_key_file: "{{ vm_ansible_ssh_private_key_file }}" # Only uses ssh keys
-nfs_server: "10.0.0.50" # Change to put the ip address for the nfs_server
+nfs_server: "10.0.10.50" # Change to put the ip address for the nfs_server
 nfs_share_path: "/volume1/letsencrypt" # This is the path on the nfs_server, volume1 for synology for example, can be anything you want
 nfs_share_mount_point: "/mnt/nfs/letsencrypt" # This is the path on the docker-host, the virtual machine. 
 nfs_docker_backup_path: "/volume1/docker-backup"
@@ -60,18 +75,34 @@ docker_networks:
     gateway: 10.111.0.1
     iprange: 10.111.0.0/24
 
-  - name: management_vlan
+  - name: gateway_vlan
     driver: macvlan
-    subnet: "{{ management_vlan }}"
+    subnet: "{{ gateway_vlan }}"
     gateway: 10.0.0.1
-    iprange: "{{ management_vlan }}"
+    iprange: "{{ gateway_vlan }}"
     options:
       parent: eth0.1 # If for some reasons you want to connect to vlan1, change to accomodate your setup
 
-  - name: compute_vlan
+  - name: service_restricted_vlan
     driver: macvlan
-    subnet: "{{ compute_vlan }}"
-    gateway: 10.0.2.1
-    iprange: "{{ compute_vlan }}"
+    subnet: "{{ service_restricted_vlan }}"
+    gateway: 10.0.12.1
+    iprange: "{{ service_restricted_vlan }}"
     options:
       parent: "ens19" # Make sure that you have defined the right bridge on the virtual machine configuration as net1. 
+
+  - name: service_external_vlan
+    driver: macvlan
+    subnet: "{{ service_external_vlan }}"
+    gateway: 10.0.13.1
+    iprange: "{{ service_external_vlan }}"
+    options:
+      parent: "ens20" # Make sure that you have defined the right bridge on the virtual machine configuration as net1. 
+
+  - name: multimedia_vlan
+    driver: macvlan
+    subnet: "{{ multimedia_vlan }}"
+    gateway: 10.0.16.1
+    iprange: "{{ multimedia_vlan }}"
+    options:
+      parent: "ens21"

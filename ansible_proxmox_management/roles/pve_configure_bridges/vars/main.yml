@@ -1,0 +1,2 @@
+down_interface: "{{ interfaces_with_state.stdout_lines | select('search', ' DOWN$') | map('split', ' ') | map(attribute=0) | list | first }}"
+up_interface: "{{ interfaces_with_state.stdout_lines | select('search', ' UP$') | map('split', ' ') | map(attribute=0) | list | first }}"

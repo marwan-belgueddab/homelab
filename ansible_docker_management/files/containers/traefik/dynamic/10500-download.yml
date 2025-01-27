@@ -29,12 +29,12 @@ http:
     flaresolverr:
       loadBalancer:
         servers:
-          - url: http://10.0.5.10:8191/
+          - url: http://10.0.13.50:8191/
     prowlarr:
       loadBalancer:
         servers:
-          - url: http://10.0.5.12:9696/
+          - url: http://10.0.13.52:9696/
     overseerr:
       loadBalancer:
         servers:
-          - url: http://10.0.5.13:5055/
+          - url: http://10.0.13.51:5055/

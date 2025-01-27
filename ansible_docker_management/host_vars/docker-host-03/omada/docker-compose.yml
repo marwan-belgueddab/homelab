@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
     networks:
       service_restricted_vlan:
-        ipv4_address: 10.0.3.10
+        ipv4_address: 10.0.13.10
 
 networks:
   service_restricted_vlan:

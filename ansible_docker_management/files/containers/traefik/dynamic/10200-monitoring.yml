@@ -46,21 +46,21 @@ http:
     uptime-kuma:
       loadBalancer:
         servers:
-          - url: http://10.0.2.11:3001/
+          - url: http://10.0.12.11:3001/
     grafana:
       loadBalancer:
         servers:
-          - url: http://10.0.2.12:3000/
+          - url: http://10.0.12.12:3000/
     influxdb:
       loadBalancer:
         servers:
-          - url: http://10.0.2.13:8086/
+          - url: http://10.0.12.13:8086/
     tools:
       loadBalancer:
         servers:
-          - url: http://10.0.2.14:80/
+          - url: http://10.0.12.14:80/
 
     wazuh:
       loadBalancer:
         servers:
-          - url: https://10.0.2.10:5601/
+          - url: https://10.0.12.10:5601/

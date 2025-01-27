@@ -1,0 +1,6 @@
+---
+- name: Update the hosts
+  hosts: pve
+  become: true
+  roles:
+    - update_hosts
