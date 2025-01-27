@@ -1,7 +1,0 @@
----
-- name: Configure docker on docker-hosts virtual machines
-  hosts: docker-hosts
-  become: true
-
-  roles:
-    - vm_configure_docker
