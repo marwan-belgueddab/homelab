@@ -9,7 +9,7 @@
   ansible.builtin.user:
     name: root
     generate_ssh_key: true
-    ssh_key_bits: 512
+    ssh_key_bits: 521
     ssh_key_file: /root/.ssh/id_ed25519
     ssh_key_type: ed25519
     ssh_key_comment: "root@{{ inventory_hostname_short }}"
