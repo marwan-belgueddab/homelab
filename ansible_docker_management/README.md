@@ -1,38 +1,47 @@
-# Ansible Docker Management 
+Ansible Docker Management
 
-This set of playbook is aimed to manage docker containers in one or multiple virtual machines.
-The goal is to have a defined set of containers as a code and deploy them via ansible ( or delete as needed ).
-Ideally, we'll not need to do any modification on the host, nor manage the containers via portainer or dockge. I user portainer to see what is happening visually and correct my code as needed then redeploy the containers.
+This repository provides Ansible playbooks and roles to automate the deployment, configuration, and management of Docker containers on multiple hosts. It simplifies the process of setting up and maintaining containerized applications, handling tasks such as network creation, container deployment, file synchronization, and updates.
 
-## The Structure
+## Purpose
 
-### The roles
-* Ensuring that all defined containers are deployed via : `docker_deploy_containers`
-  * This role make sure that all the containers that you want to be deployed on your hosts are deployed, and if not, it will do it. You can run this role as many time you want, if nothing changed, nothing *should* happen. ( Note: sometimes, the task copy the files, it's not a big deal, but it's on my to-do to fix)
+This project aims to streamline the management of Docker environments, enabling efficient and consistent deployments across your infrastructure. It's particularly beneficial for managing complex container setups, ensuring that configurations are synchronized, and simplifying updates.
 
-### Host_vars | docker-compose.yml
-* Make sure to create directories that matche the virtual machines / docker hosts namdes in the `inventory.yml` file.
-* Create a directory with the name of the container you want to deploy on a specific host.
-* For example if you want to deploy `mealie` on `docker-host-04`:
-  * `mealie` will be considered as the `container_name` in the roles and used as the source for the docker-compose project.
-  * Add you `docker-compose.yml` file inside the directory for mealie.
-  * It will look like this : `ansible_docker_management/host_vars/docker-host-04/mealie/docker-compose.yml`
-  * Then if you are using Hashi Corp Vault, you create a secret engine called `docker`, and a secret called `mealie`
-  * Add all the secret variables, like your `OIDC_CLIENT_ID` and `OIDC_CLIENT_SECRET` if using Authentik like me.
-  * Then either use the `docker_deploy_containers` role or the `docker_update_containers` role and adapt your playbook as such.
+## How to Use
 
-### Containers files
-If your containers has configuration files, like homepage or traefik:
-* Create a directory that matches the one on the host_vars in `files/containers`:
-  * For homepage it'll look like: `ansible_docker_management/files/containers/homepage/services.yml` for example.
-  * You can then modify the files are needed
-  * If you are deploying the container for the first time, the `docker_deploy_containers` role should copy the files in the right place on the docker-host.
-  * If you are updating the files, you can use the `docker_sync_files` role to simply make a copy of your current directory to the docker host that has the container.
-* For information the current roles do not remove files that have been removed from the playbook. For example if you have a file in homepage that you remove, and you sync the files, it'll still exist on your docker-host.
-* The role: `docker_remove_container_files` will remove ALL files in `/opt/docker-data/container_name`
-  * If you have a container that created new files, a database etc.. it'll remove them.
-  * I am working on updating the role to make a proper synchrnisation of the files without destroying files.
+These playbooks are designed to be executed in a specific order for optimal setup and management of your Docker environment.  It is crucial that the network configuration on the Docker hosts aligns with the VLAN definitions within the virtual machines, especially if you're utilizing macvlan networks within Docker.  This ensures seamless communication between the virtual machines and the Docker containers residing on them.
 
-### Hahicorp vault
-This is what it looks like in the vault:
-![alt text](hashi_docker_vault.png)
+The recommended execution sequence is:
+
+1. **`docker_initial_configuration.yml`**: *Run this playbook first*. It prepares the Docker hosts for container deployments by installing Docker, configuring necessary dependencies, creating Docker networks, mounting NFS shares (if needed), and setting up a non-root user for Docker management.
+
+2. **`docker_deploy_containers.yml`**: This playbook deploys containers based on the `docker-compose.yml` files located in the `host_vars` directory. It also handles fetching secrets from HashiCorp Vault if configured. This playbook will not redeploy existing containers. It is used to ensure all defined containers in your code are the ones deployed on your hosts.
+
+3. **`docker_sync_files.yml`**: This playbook synchronizes configuration files from your Ansible repository to the Docker hosts. It ensures that the container configurations on the hosts are up-to-date. This is aimed to manually update the configuration file for 1 or multiple containers as you want.
+
+4. **`docker_redeploy_containers.yml`**: Use this playbook to update or redeploy specific containers. It removes the existing stack and deploys the latest version from the `docker-compose.yml` files. This playbook requires defining the `container_names` variable. This is aimed to (re) deploy one or multiple containers as you may want.
+
+5. **`docker_delete_container.yml`**: Use this playbook to remove specific containers and their associated data. This also requires defining the `container_names` variable. This removed also their docker-volume.
+
+6. **`update_host.yml`**: This playbook updates the system packages on the Docker hosts, ensuring that they are running the latest available versions.
+
+## Directory Structure
+
+*   **`files/containers`**:  Contains configuration files for the Docker containers, mirroring the directory structure in `host_vars`.
+*   **`group_vars`**:  Holds variable definitions for different groups of hosts. The `all/vault` file stores sensitive data such as API keys and passwords (encrypted using Ansible Vault).
+*   **`host_vars`**: Contains host-specific variables and, importantly, the `docker-compose.yml` files for each container on each host.
+*   **`roles`**: Contains Ansible roles – reusable units of automation – that perform specific tasks.
+*   **Playbooks**: The `.yml` files in the root directory are the Ansible playbooks.
+
+## Requirements
+
+*   Docker installed on the target hosts (this will be handled by the `docker_initial_configuration.yml` playbook, but Docker needs to be minimally present).
+*   HashiCorp Vault (optional, but recommended for secrets management).
+*   SSH access from the Ansible control node to the Docker hosts.
+*   Correctly configured NFS server and shares (if used).
+
+## Important Notes
+
+*   **Network Consistency**: The network configurations defined in your `docker-compose.yml` files, especially for macvlan networks, *must* be consistent with the VLAN setup on your Proxmox virtual machines. This ensures that containers can communicate correctly within their assigned VLANs.
+*   **Configuration Precedence**: Host-specific variables in `host_vars` override group variables in `group_vars`. This allows for flexible customization per host.
+*   **Vault Encryption**: Encrypt sensitive data using Ansible Vault in the `group_vars/all/vault` file.
+*   **Inventory**: Define your Docker hosts in the `inventory.yml` file.

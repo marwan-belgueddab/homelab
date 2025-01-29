@@ -25,9 +25,14 @@ This role performs the following high-level actions:
 
 The role relies on the following variables, which **must be defined** in your inventory, group\_vars, or host\_vars files:
 
-*   **`pve_ansible_user_api_realm`**:  *(Required)* The Proxmox API username, including the realm (e.g., `user@pve`). This user needs to have sufficient permissions to manage VMs in Proxmox.
-*   **`pve_ansible_token_id`**: *(Required)* The Proxmox API token ID.  This is part of the API token authentication mechanism.
-*   **`api_token_file_path`**: *(Required)* The path to a file on the Ansible control node that contains the Proxmox API token secret.  **Important:** Ensure this file is securely stored and has restricted permissions.
-*   **`pve_primary_node`**: *(Required)* The hostname or IP address of your primary Proxmox node.  This is used for API communication and delegation.
-*   **`vm_config`**: *(Required)* A dictionary variable defining the VMs to be processed.
-*   **`snippets_path`**: *(Required)* The path on the Proxmox host where snippet files are stored.  This is typically `/var/lib/vz/snippets/`.
+*   **`pve_ansible_user_api_realm`**:  *(Required)* The Proxmox API username, including the realm (e.g., `user@pve`). This user needs to have sufficient permissions to manage VMs in Proxmox. Defined in your `group_vars`.
+*   **`pve_ansible_token_id`**: *(Required)* The Proxmox API token ID.  This is part of the API token authentication mechanism. Defined in your `group_vars`. 
+*   **`api_token_file_path`**: *(Required)* The path to a file on the Ansible control node that contains the Proxmox API token secret.  **Important:** Ensure this file is securely stored and has restricted permissions. Defined in `group_vars/all/vault`.
+*   **`pve_primary_node`**: *(Required)* The hostname or IP address of your primary Proxmox node.  This is used for API communication and delegation. Defined in `group_vars/proxmox/vars.yml` and `group_vars/pve/vars.yml`.
+*   **`vm_config`**: *(Required)* A dictionary variable defining the VMs to be processed. This is loaded from YAML files in `group_vars/pve/vms/` and/or `group_vars/proxmox/vms/`.
+*   **`snippets_path`**: *(Required)* The path on the Proxmox host where snippet files are stored.  This is typically `/var/lib/vz/snippets/`. Defined in `group_vars/proxmox/vars.yml` and `group_vars/pve/vars.yml`.
+
+
+## Important Notes
+
+*   This role should be run after the `pve_create_vm` role. Ensure the Proxmox API user and token are configured correctly.  The role requires the `community.general` Ansible collection.

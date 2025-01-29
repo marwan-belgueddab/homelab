@@ -28,28 +28,16 @@ The purpose of this Ansible role is to streamline and automate the initial confi
 
 ## Variables
 
-*   **dns\_servers** *(Required)*:
-    *   Description: A list of DNS server IP addresses to be configured in `/etc/resolv.conf`. This variable defines the DNS servers that the Proxmox VE server will use for name resolution.
-    *   This can be configured in the playbook. In this case the values are set in the `group_vars/all/vars` file.
-    *   Example:
-        ```yaml
-        dns_servers:
-          - 8.8.8.8
-          - 8.8.4.4
-        ```
+*   **`ansible_distribution_release`** (*Automatically Detected*): The release of the Debian/Ubuntu distribution used by Proxmox.
+*   **`dns_servers`** (*Required*):  List of DNS servers. Defined in `group_vars/all/vars`.
+*   **`inventory_hostname`** (*Automatically Detected*):  The hostname of the Proxmox node.
+*   **`domain`** (*Required*): Domain name used in configurations. Defined in `group_vars/all/vars`.
+*   **`pve_root_user`** (*Required*): Root user for Proxmox. Defined in `group_vars/all/vault`.
+*   **`pve_root_password`** (*Required*): Password for the Proxmox root user. Defined in `group_vars/all/vault`.
 
-## Example Usage
 
-Here's an example of how to use this role in a playbook:
+## Important Notes
 
-```yaml
----
-- hosts: pve
-  become: true
-  roles:
-    - role: pve_post_install
-      vars:
-        dns_servers:
-          - 192.168.1.1
-          - 8.8.8.8
-```          
+*   This role requires root privileges on the Proxmox VE nodes.
+*   Internet connectivity is required for repository updates and package installations.
+*   This role removes the enterprise repository, switching to the no-subscription repository. If you have a Proxmox subscription, adjust the repository configuration accordingly.

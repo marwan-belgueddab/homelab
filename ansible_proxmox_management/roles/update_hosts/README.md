@@ -1,27 +1,22 @@
-# Ansible Role: update_hosts
+# update_hosts
 
-This Ansible role updates all packages on a Debian/Ubuntu system to their latest versions, removes unused dependencies, and cleans up the APT cache. It ensures your system is up-to-date and optimized.
+This role updates all packages on the target hosts.
 
 ## Purpose
 
-The purpose of this role is to automate routine system maintenance on Debian or Ubuntu-based systems by ensuring they are running the latest software versions and are free of unnecessary packages and cached files.  This role is beneficial for:
-
-*   **Security:** Keeping systems up-to-date with the latest security patches and bug fixes.
-*   **Stability:** Ensuring systems are running the most recent stable versions of packages.
-*   **Performance:** Removing unnecessary dependencies and cleaning the package cache can contribute to a slightly cleaner and potentially more efficient system.
-*   **Consistency:** Applying a consistent update and cleanup process across multiple servers.
+This role ensures that your system packages are up-to-date, enhancing security and providing the latest software features.
 
 ## Tasks Performed
 
-1.  Update all installed packages to their latest available versions using `apt`.
-2.  Remove automatically installed packages that are no longer required by any installed packages and purge their configuration files.
-3.  Clean the APT package cache, removing downloaded package files.
+1. Updates all installed packages to their latest versions.
+2. Removes any packages that are no longer needed and purges their configuration files.
+3. Cleans the apt cache.
 
 ## Variables
+This role uses no specific variables. However, it depends on the system's package manager.
 
-*   There are currently no configurable variables for this role. The role performs a standard system update and cleanup using default `apt` behavior.
+## Important Notes
 
-    *   **Future Enhancements:**  In future versions, you might consider adding variables to control aspects like:
-        *   Excluding specific packages from the update process.
-        *   Configuring `apt` options (e.g., `cache_valid_time`).
-        *   Choosing between `upgrade` and `dist-upgrade` behavior (although this role defaults to `upgrade` behavior with `state: latest`).
+* This role requires root access (`become: true`).
+* An active internet connection is required to download package updates.
+* This role can take a considerable amount of time, depending on the number of packages that need updating.

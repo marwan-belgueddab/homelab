@@ -20,55 +20,15 @@ By using this role, you can ensure VMs are properly stopped and deleted, freeing
 4.  Ensure the removal of associated user-data snippet files (optional cleanup).
 
 ## Variables
-* The variable are set in group_vars and the vault. You can defined them in the playbook directly if you need to override the general variables.
-*   **pve\_ansible\_user\_api\_realm** *(Required)*:
-    *   Description: The realm for the Proxmox API user. Typically, this is `pve` for local Proxmox users.
-    *   Example: `"ansible_pve_user@pam"`
 
-*   **pve\_ansible\_token\_id** *(Required)*:
-    *   Description: The ID of the Proxmox API token used for authentication. You need to create an API token for an Ansible user in Proxmox VE.
-    *   Example: `"ansible_pve_user_token"`
+*   **`pve_ansible_user_api_realm`** (*Required*): Proxmox API user with realm. Defined in your `group_vars`.
+*   **`pve_ansible_token_id`** (*Required*): API token ID for the Ansible user. Defined in your `group_vars`.
+*   **`api_token_file_path`** (*Required*): Path to the file containing the API token secret. Defined in `group_vars/all/vault`.
+*   **`vmids`** (*Required*): A list of VM IDs to be deleted.  Defined in the playbook that uses this role (`pve_delete_vm.yaml`).
+*   **`node`** (*Required*): The Proxmox node where the VMs are located. Defined in the playbook that uses this role (`pve_delete_vm.yaml`).
 
-*   **api\_token\_file\_path** *(Required)*:
-    *   Description: The path to a local file on the Ansible controller containing the Proxmox API token secret.  It is recommended to store the API token secret in a separate file for security reasons and to avoid hardcoding secrets in your playbooks.
-    *   Example: `"~/.pve01_api_token_secret"`
+## Important Notes
 
-*   **ansible\_host** *(Required)*:
-    *   Description: The hostname or IP address of the Proxmox VE host or cluster API endpoint. This is used to connect to the Proxmox API.
-    *   Example: `"10.0.0.1"`
-
-*   **node** *(Required)*:
-    *   Description: The Proxmox node name where the virtual machines are located.
-    *   Example: `"pve01"`
-
-*   **vmids** *(Required)*:
-    *   Description: A list of virtual machine IDs (VMIDs) to be deleted. This list specifies which VMs will be targeted for deletion by the role.
-    *   Example:
-        ```yaml
-        vmids:
-          - 100
-          - 101
-          - 5002
-        ```
-
-## Example Usage
-
-Here's an example of how to use this role in a playbook alone:
-You can always take a look at the already created playbook as needed
-```yaml
----
-- name: Delete virtual machines hosted on proxmox
-  hosts: pve01
-  roles:
-    - pve_delete_vm
-  vars:
-    pve_ansible_user_api_realm: "ansible_pve_user@pam"
-    pve_ansible_token_id: "ansible_pve_user_token"
-    api_token_file_path: "~/.pve01_api_token_secret"
-    ansible_host: "10.0.0.10"
-    node: "pve01"
-    vmids:
-        - 100
-        - 101
-        - 5002
-```
+*   This role interacts with the Proxmox API. Ensure that the API user and token are correctly configured.
+*   The `vmids` variable is mandatory and should contain a list of existing VM ID's representing the VM to delete. Provide the node name via the variable `node`.
+*   Exercise caution when using this role as VM deletion is irreversible.

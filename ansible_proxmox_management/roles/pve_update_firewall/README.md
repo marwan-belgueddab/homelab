@@ -22,19 +22,6 @@ This role simplifies and automates the process of managing the Proxmox cluster-w
 *   **firewall_rules_content** *(Optional)*:
     *   Description:  This variable allows you to directly define the firewall rules content within your playbook, instead of using a separate template file. If provided, this content will be written to `/etc/pve/firewall/cluster.fw`. If `firewall_rules_template` is also defined, `firewall_rules_template` takes precedence. This is useful for simpler firewall configurations or when you want to dynamically generate rules within your playbook.
 
-## Example Usage
+## Important Notes
 
-Here's an example of how to use this role in a playbook:
-
-```yaml
----
-- name: Update Proxmox Firewall
-  hosts: pve
-  become: true
-  vars:
-    ansible_user: "{{ pve_root_user }}"
-    ansible_password: "{{ pve_root_password }}"
-    
-  role: 
-    - pve_update_firewall
-```
+*   This role overwrites the existing cluster firewall configuration.  Ensure the template file (`cluster_fw.j2`) contains the correct rules for your environment.

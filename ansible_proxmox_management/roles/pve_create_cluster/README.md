@@ -48,3 +48,9 @@ This create a cluster using the primary_node variable, you can run it again to h
 *   **pve\_ssh\_ciphers** *(Optional)*:
     *   Description:  A string defining the SSH ciphers to be used in the SSH client configuration for better security. Defaults to a set of recommended ciphers.
     *   Default: `"chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes128-ctr"`
+
+## Important Notes
+
+*   This role requires root access to the PVE nodes.
+*   Ensure that all PVE nodes have network connectivity to each other before running this role.
+*   The role modifies SSH configuration files and restarts the SSH service. Be cautious if you are manually managing SSH configurations. This role uses the `pvecm` command to manage the cluster. Ensure this command is available on your Proxmox nodes.

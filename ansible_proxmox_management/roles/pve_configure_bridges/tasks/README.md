@@ -15,19 +15,15 @@ This role is beneficial in scenarios where you need to programmatically create b
 
 I use this role to create a bridge `vmbr1` for the traffic coming from the virtual machine to separate it from the traffic for proxmox. This checks for interfaces that are not used already, if you have multiple network interfaces that is perfect. In the case you do not have a second interface, I create manually on proxmox an interface `vmbr1` based on the default interface, in many cases it could be eno1 or enp0s18, and use the bridge port: `eno1.1` or `enp0s18.1` . While not ideal or perfect, it kinda works. 
 
-## Tasks Performed
-
-1.  Set the bridge interface name based on the `pve_compute_bridge` variable.
-2.  Identify available physical network interfaces on the Proxmox node, excluding loopback, existing bridges, and wireless interfaces.
-3.  Select a suitable physical interface to use as a bridge port, prioritizing interfaces that are currently in a "DOWN" state.
-4.  Fail the role if no suitable network interface is found.
-5.  Check if a network bridge with the specified name already exists on the Proxmox node.
-6.  Create the network bridge using the `pvesh` command-line tool if it does not already exist, attaching the selected physical interface as a bridge port and enabling autostart.
-7.  Display the final bridge configuration for verification purposes.
-
 ## Variables
 
-*   **pve\_compute\_bridge** *(Required)*:
-    *   Description: The desired name for the network bridge to be created. This variable determines the name of the bridge interface (e.g., `vmbr1`, `br0`) that will be created on the Proxmox VE node.
-    *   Example: `"vmbr1"`
+*   **`pve_compute_bridge`** (*Required*): The name of the bridge interface to be created.  Defined in `group_vars/proxmox/vars.yml` and `group_vars/pve/vars.yml`.
+*   **`down_interface`**:  The first available network interface that is currently down. Automatically determined. Defined in `roles/pve_configure_bridges/vars/main.yml`.
+*   **`up_interface`**: The first available network interface that is currently up (used as a fallback if no down interface is found). Automatically determined. Defined in `roles/pve_configure_bridges/vars/main.yml`.
+
+## Important Notes
+
+* This role assumes that you have a network interface available other than loopback, existing bridges, and wireless devices.
+* The role will fail if no suitable interface is found for creating the bridge.
+* Bridge configuration is done using `pvesh`. Ensure your Proxmox environment is set up correctly for using pvesh.
 
