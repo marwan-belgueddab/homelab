@@ -1,50 +1,23 @@
-# Ansible Role: docker_remove_container
+# docker_remove_container
 
-This Ansible role automates the removal of specified Docker Compose projects from a host. It discovers `docker-compose.yml` files based on provided container names and removes the corresponding Docker Compose stacks.
+This role removes Docker containers/stack defined in the `host_vars` and the docker volumes if existings.
 
 ## Purpose
 
-This role is designed to simplify and automate the process of removing Docker Compose deployments from a server. It provides a repeatable and clean way to tear down Docker Compose stacks, which is useful in scenarios like:
-
-*   Decommissioning applications or services deployed via Docker Compose.
-*   Cleaning up development or testing environments after use.
+This role simplifies the removal of Docker containers, ensuring that all related resources are also cleaned up, preventing conflicts and freeing up resources.
 
 ## Tasks Performed
 
-1.  **Input Validation:** Ensures that the `container_names` variable is defined and contains at least one container name, preventing accidental execution without specifying which containers to remove.
-2.  **Docker Compose File Discovery:** Locates all `docker-compose.yml` files within the `host_vars/<inventory_hostname>` directory.
-3.  **File Filtering:** Filters the discovered `docker-compose.yml` files to only include those whose path matches the provided `container_names`. This allows you to target specific Docker Compose projects for removal.
-4.  **Removal Loop:** Iterates through the filtered `docker-compose.yml` files and executes the removal tasks for each file.
-5.  **Removal Tasks (per Docker Compose file):**
-    *   Sets facts to easily access paths and names related to the current Docker Compose file being processed.
-    *   Removes the Docker Compose stack associated with the current `docker-compose.yml` file using `docker compose down`.
+1. Validates that a list of container names (`container_names`) is provided.
+2. Locates all `docker-compose.yml` files for the current host.
+3. Filters the compose files to match the specified container names.
+4. Removes the matching containers and potential docker volumes using `docker-compose module`.
 
 ## Variables
 
-*   **container\_names** *(Required)*:
-    *   Description: A list of container names (or project names). This variable is crucial as it dictates which Docker Compose projects will be targeted for removal. The role expects `docker-compose.yml` files to be located in directories under `host_vars/<inventory_hostname>`, where the directory name corresponds to an item in this list.
-    *   Example:
-        ```yaml
-        container_names:
-          - webapp
-          - database
-          - monitoring
-        ```
+*   **`container_names`** (*Required*):  A list of container names to remove. Defined in the playbook that uses this role (`docker_delete_container.yml`).
 
-## Example Usage
+## Important Notes
 
-To use this role, you need to have your `docker-compose.yml` files organized under `host_vars/<inventory_hostname>`.
-
-**Example `playbook.yml`:**
-
-```yaml
-- name: Remove Containers and it's data
-  hosts: docker-hosts
-  become: true
-  vars:
-    container_names:
-      - doku-wiki
-
-  roles:
-    - docker_remove_container
-    - docker_remove_container_files
+*   This role uses the `community.docker` Ansible collection.
+*   Make sure the `container_names` variable is correctly defined in the playbook.

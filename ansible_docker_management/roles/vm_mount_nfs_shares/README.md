@@ -1,39 +1,28 @@
-# Ansible Role: nfs-mount
+# vm_mount_nfs_shares
 
-This Ansible role automates the mounting of NFS shares on Linux systems (specifically Debian/Ubuntu, due to the `apt` package manager used). It installs the necessary NFS client package and configures persistent mounts for specified NFS shares.
+This role mounts NFS shares on the virtual machine.
 
 ## Purpose
 
-This role simplifies the process of mounting NFS (Network File System) shares on Linux servers. It is designed to ensure that NFS shares are not only mounted but also persistently mounted across system reboots. This is useful in scenarios where you need to:
-
-*   Centralize storage for configuration files, application data, or backups on an NFS server.
-*   Share data between multiple servers or virtual machines via NFS.
-*   Automate the mounting of NFS shares as part of server provisioning or configuration management.
+This role simplifies the process of mounting NFS shares, which can be used for sharing data or configuration files between the NFS server and the virtual machine, centralizing storage and configuration.
 
 ## Tasks Performed
 
-1.  Ensure the `nfs-common` package is installed on the target system (using `apt` package manager).
-2.  Mount a specified NFS share for Lets Encrypt and configure it to be mounted automatically on boot.
-3.  Mount a separate specified NFS share for Docker backups and configure it to be mounted automatically on boot.
+1. Installs the `nfs-common` package.
+2. Mounts the specified NFS shares.
 
 ## Variables
 
-*   **nfs\_server** *(Required)*:
-    *   Description: The hostname or IP address of the NFS server.
-    *   Example: `"nfs.example.com"` or `"10.0.0.50""`
+*   **`nfs_server`** (*Required*): The IP address or hostname of the NFS server. Defined in `group_vars/all/vars`.
+*   **`nfs_share_path`** (*Required*): The path to the NFS share on the server. Defined in `group_vars/all/vars`.
+*   **`nfs_share_mount_point`** (*Required*): The mount point for the NFS share on the VM. Defined in `group_vars/all/vars`.
+*   **`nfs_docker_backup_path`** (*Required*): The path for docker backup storage on the nfs_server.  Defined in `group_vars/all/vars`.
+*   **`nfs_docker_backup_mount_point`** (*Required*): The path for docker backup storage on the docker-host. Defined in `group_vars/all/vars`.
 
-*   **nfs\_share\_path** *(Required)*:
-    *   Description: The export path of the NFS share on the NFS server intended for Lets Encrypt data.
-    *   Example: `"/volume1/letsencrypt"`
 
-*   **nfs\_share\_mount\_point** *(Required)*:
-    *   Description: The local mount point on the client system where the Lets Encrypt NFS share will be mounted.
-    *   Example: `"/mnt/nfs/letsencrypt"`
+## Important Notes
 
-*   **nfs\_docker\_backup\_path** *(Required)*:
-    *   Description: The export path of the NFS share on the NFS server intended for Docker backup data.
-    *   Example: `"/volume1/docker-backup"`
-
-*   **nfs\_docker\_backup\_mount\_point** *(Required)*:
-    *   Description: The local mount point on the client system where the Docker backup NFS share will be mounted.
-    *   Example: `"/mnt/nfs/docker-backup"`
+*   The NFS server must be accessible from the virtual machine.
+*   Ensure that the NFS share is exported and permissions are configured correctly on the NFS server.
+    *   On a Synology NAS for example, ensure that both read/write permissions are enabled in the NFS permissions for the specific folder.
+*   This role attempts to mount the shares multiple times with a delay in case of temporary network issues.

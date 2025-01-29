@@ -6,4 +6,4 @@
     - docker_install_requirements # Install the requirements to run certain modules
     - docker_create_network # Create the necessary networks
     - vm_mount_nfs_shares
-    - vm_configure_docker-non-root # Create a non-root user for the directory and running certain containers
+    - vm_create_docker_non-root_user # Create a non-root user for the directory and running certain containers

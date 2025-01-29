@@ -1,34 +1,28 @@
-# Ansible Role: docker_sync_files
+# docker_sync_files
 
-This Ansible role automates the setup of data directories for specified Docker containers on a host. It ensures that necessary directories are created with correct ownership and synchronizes data from source directories on the Ansible controller to the destination directories on the target host.
+This role synchronizes container configuration files from the Ansible control node to the target Docker hosts.
 
 ## Purpose
 
-This role is designed sync the content in `files/containers/container_name/` to the docker-host with the container defined in `host_vars/inventory_hostname/container_name`. If you have a container defined in multiple hosts, it'll copy the data in all the hosts. It'll not remove a file that has been synced before and has been deleted from this playbook... Looking to get that added without breaking anything.
+This role simplifies the management of container configurations by ensuring that the configuration files on the Docker hosts are consistent with the files managed in your Ansible repository.
 
-
-*   Create dedicated data directories for specific Docker containers on the target host.
-*   Set appropriate ownership and permissions on these directories, typically for a non-root Docker user and group
-*   Synchronize initial data from source directories on the Ansible controller to the newly created container data directories on the target host, using `rsync` for efficient and recursive copying.
-*   Automate the data volume setup process as part of a larger Docker deployment workflow, ensuring consistent and repeatable data volume configuration.
-
+This is a useful task for containers that needs updates to configuration file like Traefik or Homepage. You can modify the files in your ansible playbook and sync with the docker host.
 
 ## Tasks Performed
 
-1.  **Input Validation:** Validates that the `container_names` variable is defined and contains at least one container name.
-2.  **Directory Discovery:** Identifies directories under `host_vars/<inventory_hostname>` that match the names defined in `container_names`.
-3.  **Directory Mapping Creation:** Creates a dictionary (`container_data_dirs`) mapping each matched container name to its intended source data directory (on the Ansible controller, under `files/containers/<container_name>`) and destination volume directory (on the target host, under `/opt/docker-data/<container_name>`).
-4.  **Destination Directory Creation:** Ensures that the destination data directories (under `/opt/docker-data`) exist on the target host, setting permissions to `0755` and ownership to `docker-non-root-user:docker-non-root-group`.
-5.  **Source Directory Existence Check:** Verifies if the source data directory exists on the Ansible controller for each container.
-6.  **Data Directory Synchronization:** If the source data directory exists, it synchronizes the contents of the source directory to the destination directory on the target host using `ansible.posix.synchronize` (rsync). It recursively copies data and sets ownership within the destination directory to UID/GID `2000:2000` (Change this to whatever you want I just put the value as an example)
+1.  Retrieves a list of directories in `host_vars` for the current host.
+2.  Filters the directories to match the specified container names.
+3.  Creates the necessary directories on the target host if they don't exist.
+4.  Synchronizes files from the `files/containers` directory on the control node to the corresponding directories on the target host.
+
 ## Variables
 
-*   **container\_names** *(Required)*:
-    *   Description: A list of container names. This list determines which container data directories will be set up. The role expects corresponding directories to exist under `host_vars/<inventory_hostname>` and `files/containers/`.
-    *   Example:
-        ```yaml
-        container_names:
-          - webapp
-          - database
-          - redis
-        ```
+*   **`container_names`** (*Required*):  A list of container names to synchronize files for.  Should be defined in the playbook (`docker_sync_files.yml`).
+*   **`docker-data`** (*Required*): The base directory for container data.  Defined in `group_vars/all/vars`.
+
+
+## Important Notes
+
+* The role uses `synchronize` module which uses `rsync`. Make sure rsync is installed on both the control node and the Docker hosts.
+* Ensure the directory structure in `files/containers` mirrors the structure in `host_vars`.
+* Files removed in your ansible playbook will not be removed from the docker host. [ *This is in my list of improvements for this role* ]

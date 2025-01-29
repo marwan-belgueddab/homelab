@@ -1,35 +1,27 @@
-# Ansible Role: vm_configure_docker
-This Ansible role automates the installation of Docker CE on Debian/Ubuntu systems. It handles system updates, removal of old Docker versions, installation of Docker dependencies, adding the official Docker GPG key and repository, and finally installing the desired Docker packages.  It also sets up a docker group for non-root user access.
+# vm_configure_docker
+
+This role installs and configures Docker on a virtual machine.
 
 ## Purpose
 
-This role streamlines the installation process of Docker CE on Debian or Ubuntu servers. It ensures a clean and consistent Docker installation by:
-
-*   Updating the system package cache and upgrading existing packages to ensure compatibility and security.
-*   Removing any pre-existing Docker packages to avoid conflicts.
-*   Installing necessary dependencies required for Docker to function correctly.
-*   Adding the official Docker repository and GPG key to ensure you are installing Docker from trusted sources and receiving updates.
-*   Installing the core Docker Engine components (docker-ce, docker-ce-cli, containerd.io) along with useful plugins (docker-buildx-plugin, docker-compose-plugin).
-*   Creating a dedicated `docker` group and adding a specified user to it for managing Docker without requiring root privileges.
+This role streamlines the process of installing Docker on the virtual machine, ensuring that the necessary packages are installed, configured, and updated correctly. This follows the same tasks as indicated in the Docker documentation.
 
 ## Tasks Performed
 
-1.  Update the system's package cache and upgrade all existing packages using `apt`.
-2.  Remove any pre-existing Docker packages to ensure a clean installation.
-3.  Install necessary dependency packages required for Docker CE.
-4.  Create the directory for Docker's GPG key (`/etc/apt/keyrings`).
-5.  Add Docker's official GPG key to the system's APT keyring for repository verification.
-6.  Add the official Docker APT repository for Ubuntu (or Debian, based on `ansible_lsb.codename`).
-7.  Install the desired Docker packages: `docker-ce`, `docker-ce-cli`, `containerd.io`, `docker-buildx-plugin`, and `docker-compose-plugin`.
-8.  Create a `docker` group on the system.
-9.  Add a specified user (configurable via variable) to the `docker` group to enable non-root Docker management.
+1. Updates and upgrades existing packages on the VM.
+2. Removes any conflicting Docker packages that may already be installed.
+3. Installs required dependencies for Docker.
+4. Adds Docker's official GPG key and repository.
+5. Installs the Docker Engine, CLI, containerd, and other related packages.
+6. Adds a dedicated Docker group and adds the ansible user to it.
+
 
 ## Variables
 
-*   **docker\_pkgs** *(Optional)*:
-    *   Description: A list of Docker package names to be removed if they exist before installing Docker CE. This is used to ensure a clean installation process by removing potentially conflicting older versions.
+*   **`docker_pkgs`**:  List of Docker-related packages to be removed (if present). Defined in `roles/vm_configure_docker/vars/main.yml`.
+*   **`vm_ansible_user`**: Username of the Ansible user on the VM. Defined in `group_vars/all/vars`.
 
-*   **vm\_ansible\_user** *(Optional)*:
-    *   Description: The username to be added to the `docker` group. This allows the specified user to run Docker commands without `sudo`.  If not defined, the user will not be added to the docker group.
-    *   Default: `None` (User is not added to the docker group by default if this variable is not set)
-    *   Example: `"ubuntu"` or `"devuser"`
+## Important Notes
+
+*   Requires `become: true`.
+*   An active internet connection is needed for downloading packages and updates.
