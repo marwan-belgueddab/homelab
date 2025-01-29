@@ -12,6 +12,7 @@
     project_name: "{{ container_dir_name }}"
     pull: missing
     state: absent
+    remove_volumes: true
   become: true
   tags:
     - deploy_container
