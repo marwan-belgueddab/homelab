@@ -20,7 +20,7 @@ The Readme files have been generated with Gemini using AI Studio, as test to eva
 
 Please provide comments, feedbacks and if you want to provide code contributions I'm all available for it.
 
-Hope you'll find this a bit usefull :)
+Hope you'll find this a bit useful :)
 
 
 ## Proxmox | ansible_proxmox_management
