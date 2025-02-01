@@ -1,0 +1,17 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Dist Upgrade packages - Proxmox
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Check if reboot is required - Proxmox
+  ansible.builtin.stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+  ignore_errors: true
+  changed_when: true
+  notify: Reboot host
