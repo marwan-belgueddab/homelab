@@ -3,4 +3,4 @@
   hosts: pve
   become: true
   roles:
-    - update_hosts
+    - pve_update_hosts
