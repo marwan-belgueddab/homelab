@@ -1,14 +1,52 @@
 ---
-- name: Update all packages to their latest version
-  ansible.builtin.apt:
-    name: "*"
-    state: latest
+- name: Update hosts ( Debian based )
+  when: ansible_os_family == 'Debian'
+  block:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
 
-- name: Remove dependencies that are no longer required and purge their configuration files
-  ansible.builtin.apt:
-    autoremove: true
-    purge: true
+    - name: Upgrade packages
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: true
+        autoclean: true
 
-- name: Run the equivalent of "apt-get clean" as a separate step
-  ansible.builtin.apt:
-    clean: true
+    - name: Check if reboot is required - Debian
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+      ignore_errors: true
+      changed_when: true
+      notify: Reboot host
+
+  rescue:
+    - name: Display error message for Debian update failure
+      ansible.builtin.debug:
+        msg: "Failed to update Debian based host. Please check logs."
+
+- name: Update hosts ( RedHat based )
+  when: ansible_os_family == 'RedHat'
+  block:
+    - name: Update dnf cache
+      ansible.builtin.dnf:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Upgrade packages
+      ansible.builtin.dnf:
+        upgrade: all
+
+    - name: Check if reboot is required - RedHat
+      ansible.builtin.command:
+        cmd: needs-restarting -r -s
+      register: reboot_required_command
+      failed_when: reboot_required_command.rc > 1
+      changed_when: reboot_required_command.rc == 1
+      notify: Reboot host
+
+  rescue:
+    - name: Display error message for RedHat update failure
+      ansible.builtin.debug:
+        msg: "Failed to update RedHat based host. Please check logs."

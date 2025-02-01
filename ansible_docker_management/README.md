@@ -22,7 +22,7 @@ The recommended execution sequence is:
 
 5. **`docker_delete_container.yml`**: Use this playbook to remove specific containers and their associated data. This also requires defining the `container_names` variable. This removed also their docker-volume.
 
-6. **`update_host.yml`**: This playbook updates the system packages on the Docker hosts, ensuring that they are running the latest available versions.
+6. **`update_host.yml`**: This playbook updates the system packages on the Docker hosts, ensuring that they are running the latest available versions. This runs one one host at the time and wait 1 minute to ensure the host had time to reboot before updating the next one.
 
 ## Directory Structure
 
