@@ -2,5 +2,6 @@
 - name: Update the hosts
   hosts: pve
   become: true
+  serial: 1
   roles:
     - pve_update_hosts
