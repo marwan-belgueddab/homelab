@@ -15,5 +15,5 @@
   loop_control:
     pause: 5
     label: "{{ item.key }}"
-  delegate_to: "{{ groups[group_names[0]][0] }}" # Delegate to the first host of the group
-  when: created_pve_vm is succeeded and inventory_hostname == groups[group_names[0]][0] and item.value.state == "new"
+  delegate_to: "{{ ansible_play_batch[0] }}"
+  when: created_pve_vm is succeeded and inventory_hostname == ansible_play_batch[0] and item.value.state == "new"

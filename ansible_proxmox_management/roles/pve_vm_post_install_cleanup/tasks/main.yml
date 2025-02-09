@@ -13,8 +13,8 @@
   loop: "{{ vm_config | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
-  delegate_to: "{{ inventory_hostname }}" # Use this specially when running a cluster, otherwise use the inventory hostname
+  delegate_to: "{{ ansible_play_batch[0] }}"
+  when: inventory_hostname == ansible_play_batch[0] and item.value.state == "new"
   notify:
     - Sleep
 
@@ -41,8 +41,8 @@
   loop: "{{ vm_config | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ ansible_play_batch[0] }}"
+  when: inventory_hostname == ansible_play_batch[0] and item.value.state == "new"
 
 - name: Pause
   ansible.builtin.pause:
@@ -62,5 +62,5 @@
   loop_control:
     pause: 5
     label: "{{ item.key }}"
-  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ ansible_play_batch[0] }}"
+  when: inventory_hostname == ansible_play_batch[0] and item.value.state == "new"
