@@ -1,14 +1,15 @@
 # pve_update_hosts
 
-This role updates all packages on the target proxmox hosts.
+This role updates all packages on the target hosts.
 
 ## Purpose
 
-This role ensures that your proxmox hosts are up-to-date, enhancing security and providing the latest software features.
+This role ensures that your hosts are up-to-date, enhancing security and providing the latest software features.
 
 ## Tasks Performed
 
 1. Upgrade all installed packages to their latest versions.
+2. Reboot the host(s) if it detects that a reboot is needed by the host.
 
 ## Variables
 This role uses no specific variables. However, it depends on the system's package manager.

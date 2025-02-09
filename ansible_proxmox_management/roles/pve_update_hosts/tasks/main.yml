@@ -4,14 +4,21 @@
     update_cache: true
     cache_valid_time: 3600
 
-- name: Dist Upgrade packages - Proxmox
+- name: Dist Upgrade packages
   ansible.builtin.apt:
     upgrade: dist
 
-- name: Check if reboot is required - Proxmox
+- name: Check if reboot is required
   ansible.builtin.stat:
     path: /var/run/reboot-required
   register: reboot_required_file
   ignore_errors: true
-  changed_when: true
-  notify: Reboot host
+
+- name: Reboot host if required
+  ansible.builtin.reboot:
+    msg: "Reboot initiated after package updates"
+    connect_timeout: 5
+    reboot_timeout: 300
+    pre_reboot_delay: 10
+    post_reboot_delay: 30
+  when: reboot_required_file.stat.exists
