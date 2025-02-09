@@ -5,7 +5,7 @@
     api_user: "{{ pve_ansible_user_api_realm }}"
     api_token_id: "{{ pve_ansible_token_id }}"
     api_token_secret: "{{ lookup('file', api_token_file_path) }}"
-    api_host: "{{ pve_primary_node }}"
+    api_host: "{{ inventory_hostname }}"
 
     vmid: "{{ item.value.vmid }}"
     state: "stopped"
@@ -13,8 +13,8 @@
   loop: "{{ vm_config | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: inventory_hostname == pve_primary_node and item.value.state == "new" # Ensuring only VM's with the state new are stopped in the inveentory file
-  delegate_to: "{{ pve_primary_node }}" # Use this specially when running a cluster, otherwise use the inventory hostname
+  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
+  delegate_to: "{{ inventory_hostname }}" # Use this specially when running a cluster, otherwise use the inventory hostname
   notify:
     - Sleep
 
@@ -33,7 +33,7 @@
     api_user: "{{ pve_ansible_user_api_realm }}"
     api_token_id: "{{ pve_ansible_token_id }}"
     api_token_secret: "{{ lookup('file', api_token_file_path) }}"
-    api_host: "{{ pve_primary_node }}"
+    api_host: "{{ inventory_hostname }}"
 
     vmid: "{{ item.value.vmid }}"
     disk: "ide2"
@@ -41,8 +41,8 @@
   loop: "{{ vm_config | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
-  when: inventory_hostname == pve_primary_node and item.value.state == "new"
-  delegate_to: "{{ pve_primary_node }}"
+  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
+  delegate_to: "{{ inventory_hostname }}"
 
 - name: Pause
   ansible.builtin.pause:
@@ -53,7 +53,7 @@
     api_user: "{{ pve_ansible_user_api_realm }}"
     api_token_id: "{{ pve_ansible_token_id }}"
     api_token_secret: "{{ lookup('file', api_token_file_path) }}"
-    api_host: "{{ pve_primary_node }}"
+    api_host: "{{ inventory_hostname }}"
 
     vmid: "{{ item.value.vmid }}"
     name: "{{ item.key }}"
@@ -62,5 +62,5 @@
   loop_control:
     pause: 5
     label: "{{ item.key }}"
-  when: inventory_hostname == pve_primary_node and item.value.state == "new"
-  delegate_to: "{{ pve_primary_node }}"
+  when: inventory_hostname == groups[group_names[0]][0] and item.value.state == "new" # Only run if on the first host and other conditions are met
+  delegate_to: "{{ inventory_hostname }}"
