@@ -67,6 +67,7 @@
   community.docker.docker_compose_v2:
     definition: "{{ lookup('file', docker_compose_file) | from_yaml }}"
     project_name: "{{ container_dir_name }}"
+    env_files: "{{ '/tmp/' + container_dir_name + '_env_file.env' if vault_secrets.secret is defined else omit }}"
     state: present
   become: true
   when: container_inspect.rc != 0 or container_inspect.rc is undefined
