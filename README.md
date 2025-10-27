@@ -27,7 +27,7 @@ The proxmox roles are created to be ran once at least and then if any changes ne
 
 ### Before you Start
 
-* You need to have proxmx installed in one or multiple nodes. Ideally you have setup all nodes with the same password.
+* You need to have proxmox installed in one or more nodes. Ideally you have setup all nodes with the same password.
 * Make sure to update the `inventory.yml` to reflect your current proxmox configuration.
 * Put all nodes that needs to be in a cluster in the same group. In my case, I called it `pve`
 * Refer to the Ansible documentation to learn about how you can define the inventory at your liking: https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html#inventory-basics-formats-hosts-and-groups
@@ -62,6 +62,7 @@ The proxmox roles are created to be ran once at least and then if any changes ne
 
 * Start by making sure to install docker with `docker_initial_configuration.yml` as it'll install docker and add the necessary requirements.
 * You can then either use `docker_deploy_containers.yml` to deploy all at once or `docker_redeploy_containers.yml` if you want to deploy a specific container.
+
 
 
 
