@@ -1,3 +1,8 @@
+*January 2026 update:*
+I am currently working on a new version on my lab infrastructure, while keeping the same features that exists today and increasing the scope.
+I'll be releasing a BETA version of the code as soon as I have something that I like and works enough in another branch.
+
+
 # Homelab Infrastructure
 
 This repository contains a collection of information, Ansible playbooks and roles for managing my homelab infrastructure. The goal is to document and automate as much of the homelab setup and management as possible, minimizing manual SSH intervention and ensuring configurations are tracked and repeatable.
@@ -62,6 +67,7 @@ The proxmox roles are created to be ran once at least and then if any changes ne
 
 * Start by making sure to install docker with `docker_initial_configuration.yml` as it'll install docker and add the necessary requirements.
 * You can then either use `docker_deploy_containers.yml` to deploy all at once or `docker_redeploy_containers.yml` if you want to deploy a specific container.
+
 
 
 
